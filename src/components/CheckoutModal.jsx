@@ -67,8 +67,17 @@ export default function CheckoutModal({
       msg += `    Tamaño: ${sizeStr}\n\n`;
       msg += `    Cantidad: ${quantityStr}\n\n`;
       
-      if (item.image && item.image.startsWith('http')) {
-        msg += `    Imagen de referencia: Ver Foto (${item.image})\n\n`;
+      let imageUrl = '';
+      if (item.image) {
+        if (item.image.startsWith('http')) {
+          imageUrl = item.image;
+        } else if (item.image.startsWith('/')) {
+          imageUrl = window.location.origin + item.image;
+        }
+      }
+
+      if (imageUrl) {
+        msg += `    Imagen de referencia: Ver Foto (${imageUrl})\n\n`;
       } else {
         msg += `    Imagen de referencia: Ver Foto\n\n`;
       }
