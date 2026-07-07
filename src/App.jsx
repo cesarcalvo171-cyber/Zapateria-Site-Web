@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function App() {
   // State management
-  const darkMode = true;
+  const darkMode = false;
 
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('cart');
@@ -348,7 +348,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-[#FAF9F6] text-zinc-900 flex flex-col font-sans">
       
       {/* Admin Control Bar */}
       {isAdmin && (
@@ -401,9 +401,7 @@ export default function App() {
 
       {/* Hero Section */}
       <Hero
-        featuredProducts={productsList.filter(p => p.is_featured === true)}
         heroSettings={heroSettings}
-        onOpenDetail={(prod) => setSelectedProduct(prod)}
       />
 
       {/* Featured Grid Section (tarjetas destacadas) */}
