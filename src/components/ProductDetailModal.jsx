@@ -143,7 +143,7 @@ export default function ProductDetailModal({
             )}
             {/* Watermark */}
             <span className="absolute text-[8rem] font-black text-white/10 uppercase select-none pointer-events-none leading-none">
-              {(name || '').split(' ')[0]}
+              {(name || '').split(' ')[0] || ''}
             </span>
             {displayImage ? (
               <img
@@ -162,7 +162,7 @@ export default function ProductDetailModal({
 
               {/* Category */}
               <p className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#3CA9E5]">
-                {category}{product.subcategory ? ` · ${product.subcategory}` : ''}
+                {category}{product && product.subcategory ? ` · ${product.subcategory}` : ''}
               </p>
 
               {/* Name & Price */}
