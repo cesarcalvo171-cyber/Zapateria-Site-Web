@@ -171,7 +171,7 @@ export default function ProductCard({
       {/* ── Product image (rotated, center) ── */}
       <div
         className="relative flex-grow flex items-center justify-center py-4 px-6 min-h-[180px] z-10"
-        onClick={() => onOpenDetail(product)}
+        onClick={handleQuickAdd}
       >
         {displayImage ? (
           <img
@@ -210,16 +210,16 @@ export default function ProductCard({
             onClick={() => onOpenDetail(product)}
             className="w-full py-3.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-white/20 hover:border-white/40 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
-            <span>Ver Producto</span>
+            <span>Ver Detalles</span>
             <ArrowRight size={13} />
           </button>
         ) : (
           <button
             onClick={handleQuickAdd}
             disabled={isOut}
-            className="w-full py-3.5 bg-white/15 hover:bg-white hover:text-[#2196E0] backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-white/20 hover:border-white transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+            className="w-full py-3.5 bg-white text-[#2196E0] hover:bg-white/95 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-white transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group shadow-md"
           >
-            <span>Ver Producto</span>
+            <span>COMPRAR AHORA</span>
             <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
           </button>
         )}
