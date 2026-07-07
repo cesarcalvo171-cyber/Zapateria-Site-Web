@@ -171,7 +171,7 @@ export default function ProductCard({
       {/* ── Product image (rotated, center) ── */}
       <div
         className="relative flex-grow flex items-center justify-center py-4 px-6 min-h-[180px] z-10"
-        onClick={handleQuickAdd}
+        onClick={() => onOpenDetail(product)}
       >
         {displayImage ? (
           <img

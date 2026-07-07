@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const BG_COLORS = ['bg-[#017AC6]', 'bg-[#4E5B8E]', 'bg-[#008A90]'];
 
-export default function FeaturedGrid({ onAddToCart, productsList = [] }) {
+export default function FeaturedGrid({ onOpenDetail, onAddToCart, productsList = [] }) {
   // Solo mostrar productos marcados como destacados desde la base de datos
   const featuredProducts = productsList.filter(p => p.is_featured === true).slice(0, 3);
 
@@ -76,8 +76,11 @@ export default function FeaturedGrid({ onAddToCart, productsList = [] }) {
                 </span>
               </div>
 
-              {/* Shoe Image */}
-              <div className="relative flex-grow flex items-center justify-center h-[240px] z-10 mt-4 cursor-pointer" onClick={handleAdd}>
+              {/* Shoe Image (Click to see details modal) */}
+              <div 
+                className="relative flex-grow flex items-center justify-center h-[240px] z-10 mt-4 cursor-pointer" 
+                onClick={() => onOpenDetail && onOpenDetail(product)}
+              >
                 {image ? (
                   <img
                     src={image}

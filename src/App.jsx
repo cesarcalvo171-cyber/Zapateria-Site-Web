@@ -406,6 +406,7 @@ export default function App() {
 
       {/* Featured Grid Section (tarjetas destacadas) */}
       <FeaturedGrid 
+        onOpenDetail={(prod) => setSelectedProduct(prod)}
         onAddToCart={(prod, qty, size, color) => {
           handleAddToCart(prod, qty, size, color);
           setIsCartOpen(true);
