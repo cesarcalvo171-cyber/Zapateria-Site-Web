@@ -89,12 +89,12 @@ export default function ProductDetailModal({
 
   // Resolve size-specific price
   const originalPriceVal = product.originalPrice || product.original_price;
-  const resolvedPrice = activeVariant?.price_by_size?.[selectedSize] !== undefined
+  const resolvedPrice = activeVariant?.price_by_size && selectedSize && activeVariant.price_by_size[selectedSize] !== undefined
     ? Number(activeVariant.price_by_size[selectedSize])
     : Number(price || 0);
 
-  const resolvedOriginalPrice = activeVariant?.original_price_by_size?.[selectedSize] !== undefined && activeVariant.original_price_by_size[selectedSize] !== null
-    ? (activeVariant.original_price_by_size[selectedSize] ? Number(activeVariant.original_price_by_size[selectedSize]) : null)
+  const resolvedOriginalPrice = activeVariant?.original_price_by_size && selectedSize && activeVariant.original_price_by_size[selectedSize] !== undefined && activeVariant.original_price_by_size[selectedSize] !== null
+    ? Number(activeVariant.original_price_by_size[selectedSize])
     : (originalPriceVal ? Number(originalPriceVal) : null);
 
   // Discount calculation
