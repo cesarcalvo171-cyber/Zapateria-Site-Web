@@ -101,7 +101,7 @@ export default function ProductDetailModal({
   const discount = resolvedOriginalPrice ? Math.round(((resolvedOriginalPrice - resolvedPrice) / resolvedOriginalPrice) * 100) : 0;
 
   // Image to display
-  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/air_max_speed_turf.png');
+  const displayImage = activeVariant?.image_url || product.image || '';
 
   return (
     <AnimatePresence>
