@@ -11,6 +11,7 @@ export default function ProductDetailModal({
   onAddToCart,
   isAdmin = false
 }) {
+  console.log('ProductDetailModal Props:', { product, isOpen, isAdmin });
   if (!product || !isOpen) return null;
 
   const { name, price, category, description, details } = product;
