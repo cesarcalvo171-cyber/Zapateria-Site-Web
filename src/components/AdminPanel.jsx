@@ -837,25 +837,25 @@ export default function AdminPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#FAF9F6] dark:bg-zinc-950 flex flex-col overflow-y-auto text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
+    <div className="fixed inset-0 z-50 bg-[#FAF9F6] flex flex-col overflow-y-auto text-zinc-900">
       
       {/* Top Header */}
-      <div className="bg-white dark:bg-zinc-900 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div className="bg-[#3CA9E5] px-6 py-4 flex items-center justify-between sticky top-0 z-10 text-white shadow-sm border-b border-white/20">
         <div className="flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-900/50 cursor-pointer"
+            className="p-2 text-white hover:text-white rounded-full bg-white/10 hover:bg-white/20 cursor-pointer"
             aria-label="Cerrar panel de administración"
           >
             <X size={18} />
           </button>
-          <h1 className="text-lg font-bold uppercase tracking-wider">Zapatería Admin</h1>
+          <h1 className="text-lg font-black uppercase tracking-wider">Zapatería Admin</h1>
         </div>
 
         {session && (
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-500 hover:text-rose-600 transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-100 hover:text-white transition-colors cursor-pointer"
           >
             <LogOut size={14} />
             Cerrar Sesión
@@ -865,33 +865,33 @@ export default function AdminPanel({
 
       {/* Tab bar navigation if logged in */}
       {session && (
-        <div className="bg-zinc-100 dark:bg-zinc-900 flex justify-center gap-6 py-2 px-6">
+        <div className="bg-zinc-100 flex justify-center gap-6 py-2.5 px-6 border-b border-zinc-200">
           <button
             onClick={() => setActiveTab('products')}
-            className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
+            className={`text-xs font-black uppercase tracking-wider pb-1 border-b-2 cursor-pointer transition-all ${
               activeTab === 'products'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
-                : 'border-transparent text-zinc-450 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'border-[#3CA9E5] text-[#3CA9E5]'
+                : 'border-transparent text-zinc-450 hover:text-[#3CA9E5]'
             }`}
           >
             Gestión de Calzado
           </button>
           <button
             onClick={() => setActiveTab('hero')}
-            className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
+            className={`text-xs font-black uppercase tracking-wider pb-1 border-b-2 cursor-pointer transition-all ${
               activeTab === 'hero'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
-                : 'border-transparent text-zinc-400 hover:text-zinc-650'
+                ? 'border-[#3CA9E5] text-[#3CA9E5]'
+                : 'border-transparent text-zinc-450 hover:text-[#3CA9E5]'
             }`}
           >
             Diseño del Hero
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
+            className={`text-xs font-black uppercase tracking-wider pb-1 border-b-2 cursor-pointer transition-all ${
               activeTab === 'sales'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
-                : 'border-transparent text-zinc-400 hover:text-zinc-650'
+                ? 'border-[#3CA9E5] text-[#3CA9E5]'
+                : 'border-transparent text-zinc-450 hover:text-[#3CA9E5]'
             }`}
           >
             Ventas y Ganancias
@@ -946,7 +946,7 @@ export default function AdminPanel({
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full bg-[#0A0A0A] dark:bg-[#FAF9F6] text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-white text-xs font-bold py-3.5 uppercase tracking-[0.2em] flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-55 transition-all"
+                className="w-full bg-[#3CA9E5] hover:bg-[#258ec7] text-white text-xs font-bold py-3.5 uppercase tracking-[0.2em] flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-55 transition-all"
               >
                 {isRegistering ? <UserPlus size={14} /> : <LogIn size={14} />}
                 {authLoading ? 'Procesando...' : isRegistering ? 'Registrar Cuenta' : 'Iniciar Sesión'}
@@ -1330,7 +1330,7 @@ export default function AdminPanel({
                 <button
                   type="submit"
                   disabled={submitLoading}
-                  className="w-full bg-[#0A0A0A] dark:bg-[#FAF9F6] text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-white text-xs font-bold py-4 uppercase tracking-[0.25em] flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-55 transition-all"
+                  className="w-full bg-[#3CA9E5] hover:bg-[#258ec7] text-white text-xs font-bold py-4 uppercase tracking-[0.25em] flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-55 transition-all"
                 >
                   {submitLoading ? (
                     <>{productToEdit ? 'Actualizando producto...' : 'Subiendo producto y variantes...'}</>
@@ -1493,7 +1493,7 @@ export default function AdminPanel({
                 <button
                   type="submit"
                   disabled={submitLoading}
-                  className="w-full bg-[#0A0A0A] dark:bg-[#FAF9F6] text-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-white text-xs font-bold py-4 uppercase tracking-[0.25em] flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-55 transition-all"
+                  className="w-full bg-[#3CA9E5] hover:bg-[#258ec7] text-white text-xs font-bold py-4 uppercase tracking-[0.25em] flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-55 transition-all"
                 >
                   {submitLoading ? 'Guardando ajustes...' : 'Guardar Ajustes del Hero'}
                 </button>
