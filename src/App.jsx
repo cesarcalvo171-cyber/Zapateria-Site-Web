@@ -409,15 +409,20 @@ export default function App() {
       <div className="w-full bg-[#FAF9F6] text-zinc-900 py-16 border-t border-zinc-200">
         <main id="catalog" className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Title and Tabs */}
-          <div className="flex flex-col items-center justify-center mb-12">
-            <div className="flex items-center gap-2 mb-6 text-zinc-500">
-              <span className="text-sm font-light">Nuestra</span>
-              <span className="text-xl sm:text-2xl font-extrabold tracking-widest text-zinc-950 uppercase">COLECCIÓN</span>
+          {/* Título de sección */}
+          <div className="flex items-center gap-3 mb-8">
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Explora</p>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-widest text-zinc-950 uppercase">NUESTRA COLECCIÓN</h2>
             </div>
-            
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full max-w-3xl">
-              {['Todos', 'Hombre', 'Mujer', 'Niños'].map(tab => (
+          </div>
+
+          {/* === SISTEMA DE FILTROS POR CATEGORÍA Y SUBCATEGORÍA === */}
+          <div className="w-full mb-10 space-y-4">
+
+            {/* Fila 1: Categorías principales */}
+            <div className="flex flex-wrap gap-2">
+              {['Todos', 'Hombre', 'Mujer', 'Niños', 'Novedades', 'Ofertas'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -425,57 +430,31 @@ export default function App() {
                     setSelectedSubcategory('Todas');
                     setShowOnlyFavorites(false);
                   }}
-                  className={`flex-1 min-w-[120px] py-2.5 px-4 text-xs sm:text-sm font-bold border transition-all duration-300 cursor-pointer uppercase tracking-wider ${
-                    selectedCategory === tab 
-                      ? 'bg-zinc-950 text-white border-zinc-950' 
-                      : 'bg-transparent text-zinc-500 border-zinc-300 hover:border-zinc-950 hover:text-zinc-950'
+                  className={`py-2 px-5 text-xs font-bold border-2 transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-full ${
+                    selectedCategory === tab
+                      ? 'bg-zinc-950 text-white border-zinc-950 shadow-md'
+                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-950 hover:text-zinc-950'
                   }`}
                 >
                   {tab}
                 </button>
               ))}
-            </div>
-          </div>
 
-          {/* Modern Nike-style Filter Bar */}
-          <div className="w-full bg-white border border-zinc-200 rounded-2xl p-6 mb-12 flex flex-wrap items-center justify-between gap-6 shadow-sm text-zinc-800">
-            {/* Tallas Filter */}
-            <div className="space-y-2 text-left min-w-[200px] flex-1">
-              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Talla</span>
-              <div className="flex flex-wrap gap-1.5">
-                {['Todas', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'].map(sz => (
-                  <button
-                    key={sz}
-                    onClick={() => setSelectedSize(sz)}
-                    className={`px-2.5 py-1 text-[10px] font-bold border rounded-md cursor-pointer transition-all ${
-                      selectedSize === sz
-                        ? 'bg-zinc-950 text-white border-zinc-950 font-black'
-                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Rango de Precios Filter */}
-            <div className="space-y-2 text-left min-w-[200px] flex-1">
-              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Ordenar</span>
-              <div className="flex gap-2">
+              {/* Separador + Ordenar */}
+              <div className="ml-auto flex items-center gap-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Ordenar:</span>
                 {[
-                  { value: 'default', label: 'Por Defecto' },
-                  { value: 'price-asc', label: 'Menor Precio' },
-                  { value: 'price-desc', label: 'Mayor Precio' },
-                  { value: 'rating', label: 'Mejor Calificación' }
+                  { value: 'default', label: 'Recientes' },
+                  { value: 'price-asc', label: '$ Menor' },
+                  { value: 'price-desc', label: '$ Mayor' },
                 ].map(opt => (
                   <button
                     key={opt.value}
                     onClick={() => setSortBy(opt.value)}
-                    className={`px-3 py-1.5 text-[10px] font-semibold border rounded-lg cursor-pointer transition-all ${
+                    className={`py-1.5 px-3 text-[10px] font-semibold border rounded-full cursor-pointer transition-all ${
                       sortBy === opt.value
                         ? 'bg-zinc-950 text-white border-zinc-950'
-                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
+                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400 bg-white'
                     }`}
                   >
                     {opt.label}
@@ -484,33 +463,50 @@ export default function App() {
               </div>
             </div>
 
-            {/* Color Filter */}
-            <div className="space-y-2 text-left min-w-[150px]">
-              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Color</span>
-              <div className="flex flex-wrap gap-2 items-center">
-                {['Todos', 'Negro', 'Blanco', 'Azul', 'Rojo', 'Verde', 'Amarillo'].map(col => {
-                  const colHexMap = {
-                    'Todos': 'bg-gradient-to-tr from-zinc-200 to-zinc-400 border-zinc-300',
-                    'Negro': 'bg-black border-black',
-                    'Blanco': 'bg-white border-zinc-300',
-                    'Azul': 'bg-blue-600 border-blue-600',
-                    'Rojo': 'bg-red-600 border-red-600',
-                    'Verde': 'bg-green-600 border-green-600',
-                    'Amarillo': 'bg-yellow-500 border-yellow-500'
-                  };
-                  return (
-                    <button
-                      key={col}
-                      onClick={() => setSelectedColor(col)}
-                      className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 cursor-pointer ${
-                        selectedColor === col ? 'scale-110 ring-2 ring-zinc-950/20 shadow-md' : 'opacity-80'
-                      } ${colHexMap[col] || 'bg-zinc-200'}`}
-                      title={col}
-                    />
-                  );
-                })}
+            {/* Fila 2: Subcategorías (aparece solo si la categoría tiene subcategorías) */}
+            {subcategories[selectedCategory] && (
+              <div className="flex flex-wrap gap-2 pt-1 border-t border-zinc-200">
+                <button
+                  onClick={() => setSelectedSubcategory('Todas')}
+                  className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                    selectedSubcategory === 'Todas'
+                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                  }`}
+                >
+                  Todas
+                </button>
+                {subcategories[selectedCategory].map(sub => (
+                  <button
+                    key={sub}
+                    onClick={() => setSelectedSubcategory(sub)}
+                    className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                      selectedSubcategory === sub
+                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                        : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
               </div>
-            </div>
+            )}
+
+            {/* Indicador activo */}
+            {(selectedCategory !== 'Todos' || selectedSubcategory !== 'Todas') && (
+              <div className="flex items-center gap-2 text-[10px] text-zinc-500">
+                <span>Mostrando:</span>
+                <span className="font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded">
+                  {selectedCategory}{selectedSubcategory !== 'Todas' ? ` › ${selectedSubcategory}` : ''}
+                </span>
+                <button
+                  onClick={() => { setSelectedCategory('Todos'); setSelectedSubcategory('Todas'); }}
+                  className="text-[#3CA9E5] font-bold hover:underline cursor-pointer ml-1"
+                >
+                  × Limpiar
+                </button>
+              </div>
+            )}
           </div>
 
         {/* Loading Indicator */}

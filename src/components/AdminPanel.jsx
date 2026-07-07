@@ -1138,28 +1138,28 @@ export default function AdminPanel({
                 </label>
               </div>
 
-              {/* Description */}
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Descripción</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Descripción del Calzado</label>
                 <textarea
                   rows="3"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Detalles sobre la fragancia, notas olfativas y sensación general..."
+                  placeholder="Ej: Zapatillas de alto rendimiento con suela de goma antideslizante, upper de malla transpirable y amortiguación reactiva para máxima comodidad durante todo el día..."
                   className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white resize-none"
                 />
               </div>
 
               {/* Details & Material */}
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Detalles y Composición (Una frase por línea)</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Características Técnicas (Una por línea)</label>
                 <textarea
-                  rows="3"
+                  rows="4"
                   value={detailsInput}
                   onChange={(e) => setDetailsInput(e.target.value)}
-                  placeholder="Ej: Notas de salida: Bergamota y Pera&#10;Notas de corazón: Rosa turca&#10;Larga duración"
+                  placeholder={`Ej: Marca: Nike&#10;Material Exterior: Cuero y Malla transpirable&#10;Suela: Goma de alta tracción&#10;Ajuste: Cordones&#10;Estilo: Deportivo / Casual`}
                   className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white resize-none"
                 />
+                <p className="text-[9px] text-zinc-400 mt-1">Escribe cada característica en una línea separada. Ej: Marca, Material, Suela, Tipo de cierre, Estilo...</p>
               </div>
 
               {/* VARIANTS BUILDER */}
