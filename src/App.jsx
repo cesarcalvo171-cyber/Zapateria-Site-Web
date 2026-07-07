@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import FeaturedGrid from './components/FeaturedGrid';
 import ProductCard from './components/ProductCard';
 import ProductDetailModal from './components/ProductDetailModal';
 import CartDrawer from './components/CartDrawer';
@@ -398,49 +399,119 @@ export default function App() {
         isAdmin={isAdmin}
       />
 
-      {/* Hero Header Section */}
-      <Hero 
-        onExploreClick={() => {
-          const element = document.getElementById('catalog');
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
-        }} 
-        featuredProducts={productsList.filter(p => p.is_featured === true)}
-        settings={heroSettings}
-        onOpenDetail={(prod) => setSelectedProduct(prod)}
+      {/* Featured Grid Section (Nike-style 3 vertical cards) */}
+      <FeaturedGrid 
+        onOpenDetail={(prod) => setSelectedProduct(prod)} 
+        productsList={productsList} 
       />
 
-      {/* Main Catalog Shop */}
-      <main id="catalog" className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        {/* Title and Tabs */}
-        <div className="flex flex-col items-center justify-center mb-12">
-          <div className="flex items-center gap-2 mb-6 text-zinc-400">
-            <span className="text-sm font-light">Nuestra</span>
-            <span className="text-xl sm:text-2xl font-bold tracking-widest text-white uppercase">COLECCIÓN</span>
-          </div>
+      {/* Catalog Container Wrapper with Clean White Background */}
+      <div className="w-full bg-[#FAF9F6] text-zinc-900 py-16 border-t border-zinc-200">
+        <main id="catalog" className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full max-w-3xl">
-            {['Todos', 'Hombre', 'Mujer', 'Niños'].map(tab => (
-              <button
-                key={tab}
-                onClick={() => {
-                  setSelectedCategory(tab);
-                  setSelectedSubcategory('Todas');
-                  setShowOnlyFavorites(false);
-                }}
-                className={`flex-1 min-w-[120px] py-2.5 px-4 text-xs sm:text-sm font-medium border transition-all duration-300 cursor-pointer uppercase tracking-wider ${
-                  selectedCategory === tab 
-                    ? 'bg-zinc-200 text-zinc-900 border-zinc-200' 
-                    : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+          {/* Title and Tabs */}
+          <div className="flex flex-col items-center justify-center mb-12">
+            <div className="flex items-center gap-2 mb-6 text-zinc-500">
+              <span className="text-sm font-light">Nuestra</span>
+              <span className="text-xl sm:text-2xl font-extrabold tracking-widest text-zinc-950 uppercase">COLECCIÓN</span>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full max-w-3xl">
+              {['Todos', 'Hombre', 'Mujer', 'Niños'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setSelectedCategory(tab);
+                    setSelectedSubcategory('Todas');
+                    setShowOnlyFavorites(false);
+                  }}
+                  className={`flex-1 min-w-[120px] py-2.5 px-4 text-xs sm:text-sm font-bold border transition-all duration-300 cursor-pointer uppercase tracking-wider ${
+                    selectedCategory === tab 
+                      ? 'bg-zinc-950 text-white border-zinc-950' 
+                      : 'bg-transparent text-zinc-500 border-zinc-300 hover:border-zinc-950 hover:text-zinc-950'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+
+          {/* Modern Nike-style Filter Bar */}
+          <div className="w-full bg-white border border-zinc-200 rounded-2xl p-6 mb-12 flex flex-wrap items-center justify-between gap-6 shadow-sm text-zinc-800">
+            {/* Tallas Filter */}
+            <div className="space-y-2 text-left min-w-[200px] flex-1">
+              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Talla</span>
+              <div className="flex flex-wrap gap-1.5">
+                {['Todas', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45'].map(sz => (
+                  <button
+                    key={sz}
+                    onClick={() => setSelectedSize(sz)}
+                    className={`px-2.5 py-1 text-[10px] font-bold border rounded-md cursor-pointer transition-all ${
+                      selectedSize === sz
+                        ? 'bg-zinc-950 text-white border-zinc-950 font-black'
+                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Rango de Precios Filter */}
+            <div className="space-y-2 text-left min-w-[200px] flex-1">
+              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Ordenar</span>
+              <div className="flex gap-2">
+                {[
+                  { value: 'default', label: 'Por Defecto' },
+                  { value: 'price-asc', label: 'Menor Precio' },
+                  { value: 'price-desc', label: 'Mayor Precio' },
+                  { value: 'rating', label: 'Mejor Calificación' }
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setSortBy(opt.value)}
+                    className={`px-3 py-1.5 text-[10px] font-semibold border rounded-lg cursor-pointer transition-all ${
+                      sortBy === opt.value
+                        ? 'bg-zinc-950 text-white border-zinc-950'
+                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Color Filter */}
+            <div className="space-y-2 text-left min-w-[150px]">
+              <span className="block text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Filtrar por Color</span>
+              <div className="flex flex-wrap gap-2 items-center">
+                {['Todos', 'Negro', 'Blanco', 'Azul', 'Rojo', 'Verde', 'Amarillo'].map(col => {
+                  const colHexMap = {
+                    'Todos': 'bg-gradient-to-tr from-zinc-200 to-zinc-400 border-zinc-300',
+                    'Negro': 'bg-black border-black',
+                    'Blanco': 'bg-white border-zinc-300',
+                    'Azul': 'bg-blue-600 border-blue-600',
+                    'Rojo': 'bg-red-600 border-red-600',
+                    'Verde': 'bg-green-600 border-green-600',
+                    'Amarillo': 'bg-yellow-500 border-yellow-500'
+                  };
+                  return (
+                    <button
+                      key={col}
+                      onClick={() => setSelectedColor(col)}
+                      className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 cursor-pointer ${
+                        selectedColor === col ? 'scale-110 ring-2 ring-zinc-950/20 shadow-md' : 'opacity-80'
+                      } ${colHexMap[col] || 'bg-zinc-200'}`}
+                      title={col}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
 
         {/* Loading Indicator */}
         {loading ? (
@@ -493,7 +564,8 @@ export default function App() {
             ))}
           </div>
         )}
-      </main>
+        </main>
+      </div>
 
       {/* Footer Design */}
       {!isAdmin && (
