@@ -35,9 +35,9 @@ export default function App() {
   // Hero and Editing states
   const [productToEdit, setProductToEdit] = useState(null);
   const [heroSettings, setHeroSettings] = useState({
-    hero_title: 'DESCUBRE TU FRAGANCIA IDEAL',
-    hero_subtitle: 'La esencia del lujo. Perfumes exclusivos para cada personalidad.',
-    hero_cta: 'Explorar Catálogo'
+    hero_title: 'ENCUENTRA TU CALZADO IDEAL',
+    hero_subtitle: 'Estilo, comodidad y calidad en cada paso. Explora nuestra colección de calzado para toda la familia.',
+    hero_cta: 'Explorar Colección'
   });
 
   const [selectedCategory, setSelectedCategory] = useState('Todos');
@@ -399,7 +399,14 @@ export default function App() {
         isAdmin={isAdmin}
       />
 
-      {/* Featured Grid Section (Nike-style 3 vertical cards) */}
+      {/* Hero Section */}
+      <Hero
+        featuredProducts={productsList.filter(p => p.is_featured === true)}
+        heroSettings={heroSettings}
+        onOpenDetail={(prod) => setSelectedProduct(prod)}
+      />
+
+      {/* Featured Grid Section (tarjetas destacadas) */}
       <FeaturedGrid 
         onOpenDetail={(prod) => setSelectedProduct(prod)} 
         productsList={productsList} 

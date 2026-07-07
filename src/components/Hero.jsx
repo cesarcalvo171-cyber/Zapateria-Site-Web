@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag } from 'lucide-react';
 
-export default function Hero({ featuredProducts = [], onOpenDetail }) {
+export default function Hero({ featuredProducts = [], heroSettings = {}, onOpenDetail }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [activeVariantIdx, setActiveVariantIdx] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -36,11 +36,10 @@ export default function Hero({ featuredProducts = [], onOpenDetail }) {
   const availableSizes = activeVariant?.sizes || activeProduct?.sizes || [];
   const colorsList = activeProduct?.product_variants || [];
 
-  // ── Sin productos destacados: Banner de bienvenida ──────────────────────
+  // ── Sin productos destacados: Banner configurable ──────────────────────
   if (!activeProduct) {
     return (
       <section className="relative overflow-hidden bg-[#3CA9E5] text-white py-24 md:py-32">
-        {/* Fondo tipográfico */}
         <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none">
           <span className="text-[18vw] font-black text-white/10 uppercase tracking-widest leading-none">
             SNEAKERS
@@ -51,12 +50,21 @@ export default function Hero({ featuredProducts = [], onOpenDetail }) {
             Bienvenido a
           </p>
           <h1 className="text-5xl sm:text-8xl font-black uppercase leading-tight drop-shadow-xl">
-            Tu Zapatería
+            {heroSettings.hero_title || 'Tu Zapatería'}
           </h1>
           <p className="text-white/75 text-sm sm:text-base font-light max-w-lg mx-auto leading-relaxed">
-            Sube tus primeros productos desde el panel de administración y márcalos
-            como <strong>Destacados</strong> para activar este carrusel.
+            {heroSettings.hero_subtitle || 'Sube tus primeros productos y márcalos como Destacados para activar este carrusel.'}
           </p>
+          {heroSettings.hero_cta && (
+            <div className="pt-4">
+              <a
+                href="#catalog"
+                className="inline-block bg-white text-[#3CA9E5] font-black text-xs uppercase tracking-widest px-8 py-3 hover:bg-zinc-100 transition-all shadow-lg"
+              >
+                {heroSettings.hero_cta}
+              </a>
+            </div>
+          )}
         </div>
       </section>
     );
