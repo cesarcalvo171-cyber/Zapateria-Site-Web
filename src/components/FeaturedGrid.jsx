@@ -96,7 +96,7 @@ export default function FeaturedGrid({ onOpenDetail, onAddToCart, productsList =
 
               {/* Action button */}
               <button
-                onClick={handleAdd}
+                onClick={() => onOpenDetail && onOpenDetail(product)}
                 className="mt-auto w-full py-4 bg-white text-black hover:bg-zinc-150 text-xs font-black uppercase tracking-[0.2em] rounded-2xl border border-white transition-all cursor-pointer flex items-center justify-center gap-2 z-10 active:scale-95 shadow-lg"
               >
                 <ShoppingBag size={14} />
