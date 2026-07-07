@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, ShoppingBag, Trash2, Pencil } from 'lucide-react';
+import { Heart, ArrowRight, Trash2, Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-
 
 export default function ProductCard({
   product,
@@ -14,236 +12,217 @@ export default function ProductCard({
   onDelete,
   onEdit
 }) {
-  const { name, price, originalPrice, category, rating } = product;
+  const { name, price, originalPrice, category, subcategory } = product;
 
-  // Handle Supabase structure vs Fallback static data
   const variants = product.product_variants || [];
   const hasVariants = variants.length > 0;
 
-  // Track active color variant index
   const [activeVariantIdx, setActiveVariantIdx] = useState(0);
   const activeVariant = hasVariants ? variants[activeVariantIdx] : null;
 
-  // Active image & colors
-  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/air_max_speed_turf.png');
-  const colorsList = hasVariants 
-    ? variants.map(v => ({ name: v.color_name, hex: v.color_hex }))
-    : (product.colors || []);
+  const displayImage = activeVariant?.image_url || product.image || null;
 
-  // Available sizes for the active variant
-  const availableSizes = activeVariant ? activeVariant.sizes : (product.sizes || []);
+  const availableSizes = activeVariant?.sizes || product.sizes || [];
   const [selectedSize, setSelectedSize] = useState(null);
-
-  // Auto-select first size if none is selected
   const activeSize = selectedSize && availableSizes.includes(selectedSize)
-    ? selectedSize 
-    : (availableSizes[0] || 'Única');
+    ? selectedSize
+    : (availableSizes[0] || null);
 
-  // Resolve size-specific price
   const resolvedPrice = activeVariant?.price_by_size?.[activeSize] !== undefined
     ? Number(activeVariant.price_by_size[activeSize])
-    : Number(price);
+    : Number(price || 0);
 
-  const resolvedOriginalPrice = activeVariant?.original_price_by_size?.[activeSize] !== undefined && activeVariant.original_price_by_size[activeSize] !== null
-    ? (activeVariant.original_price_by_size[activeSize] ? Number(activeVariant.original_price_by_size[activeSize]) : null)
+  const resolvedOriginalPrice = activeVariant?.original_price_by_size?.[activeSize]
+    ? Number(activeVariant.original_price_by_size[activeSize])
     : (originalPrice ? Number(originalPrice) : null);
 
-  // Calculate discount percentage
-  const discount = resolvedOriginalPrice ? Math.round(((resolvedOriginalPrice - resolvedPrice) / resolvedOriginalPrice) * 100) : 0;
+  const discount = resolvedOriginalPrice
+    ? Math.round(((resolvedOriginalPrice - resolvedPrice) / resolvedOriginalPrice) * 100)
+    : 0;
 
-  // Calculate total product stock
-  const totalStock = hasVariants 
-    ? variants.reduce((acc, variant) => {
-        const sizesStock = Object.values(variant.stock_by_size || {}).reduce((sAcc, s) => sAcc + Number(s), 0);
-        return acc + sizesStock;
-      }, 0)
+  const totalStock = hasVariants
+    ? variants.reduce((acc, v) =>
+        acc + Object.values(v.stock_by_size || {}).reduce((s, n) => s + Number(n), 0), 0)
     : 999;
-  const isCompletelyOut = hasVariants && totalStock === 0;
+  const isOut = hasVariants && totalStock === 0;
 
   const handleQuickAdd = (e) => {
     e.stopPropagation();
-    if (isCompletelyOut) return;
-    
-    // Prepare the selected variant color details
-    const selectedColorObj = hasVariants 
+    if (isOut) return;
+    const colorObj = hasVariants
       ? { name: activeVariant.color_name, hex: activeVariant.color_hex }
-      : (product.colors ? product.colors[0] : null);
-
-    onAddToCart(product, 1, activeSize, selectedColorObj);
+      : null;
+    onAddToCart(product, 1, activeSize || 'Única', colorObj);
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className={`group flex flex-col w-full relative bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-4 ${isCompletelyOut ? 'opacity-85 grayscale-[20%]' : ''}`}
+      className={`group relative flex flex-col w-full rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer ${isOut ? 'opacity-70' : ''}`}
+      style={{ background: 'linear-gradient(145deg, #3BB8F5 0%, #2196E0 100%)' }}
     >
-      {/* Image Showcase */}
-      <div className="relative aspect-square w-full overflow-hidden bg-zinc-50 dark:bg-zinc-950 transition-colors rounded-xl flex items-center justify-center p-4">
-        {/* Glow behind image */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] bg-[#3CA9E5]/5 blur-[40px] rounded-full pointer-events-none"></div>
-        
-        {/* Out of Stock Badge */}
-        {isCompletelyOut ? (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-zinc-950/90 text-white text-[10px] font-bold px-4 py-2 uppercase tracking-[0.2em] shadow-lg backdrop-blur-sm whitespace-nowrap rotate-[-5deg]">
-            Agotado
-          </div>
-        ) : discount > 0 && (
-          <span className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider rounded-md">
-            -{discount}%
+      {/* ── Admin buttons ── */}
+      {isAdmin && (
+        <div className="absolute top-3 right-3 z-30 flex gap-1.5">
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(product); }}
+            className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition-all cursor-pointer backdrop-blur-sm"
+            title="Editar"
+          >
+            <Pencil size={12} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+            className="p-1.5 bg-rose-600/80 hover:bg-rose-600 text-white rounded-full transition-all cursor-pointer"
+            title="Eliminar"
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      )}
+
+      {/* ── Favorite button (user only) ── */}
+      {!isAdmin && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
+          className="absolute top-3 left-3 z-30 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-all cursor-pointer backdrop-blur-sm"
+        >
+          <Heart size={14} fill={isFavorite ? '#fff' : 'none'} className="text-white" />
+        </button>
+      )}
+
+      {/* ── Header: Category, Name, Price ── */}
+      <div className="px-5 pt-5 pb-2 flex items-start justify-between gap-2 z-10">
+        <div className="flex-1">
+          <p className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-white/70 mb-0.5">
+            {category || 'Calzado'}{subcategory ? ` · ${subcategory}` : ''}
+          </p>
+          <h3
+            onClick={() => onOpenDetail(product)}
+            className="text-xl font-black uppercase leading-tight text-white drop-shadow-sm line-clamp-2"
+          >
+            {name}
+          </h3>
+        </div>
+        {/* Price pill */}
+        <div className="flex-shrink-0">
+          <span className="inline-block bg-white/20 backdrop-blur-sm text-white font-black text-sm px-3 py-1.5 rounded-xl whitespace-nowrap">
+            ${resolvedPrice.toFixed(2)}
           </span>
-        )}
-
-        {!isAdmin && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(product.id);
-            }}
-            className="absolute top-3 right-3 z-30 p-2 bg-white dark:bg-zinc-900 text-zinc-400 hover:text-rose-500 dark:hover:text-rose-400 hover:scale-110 active:scale-95 transition-all rounded-full shadow-sm cursor-pointer"
-            aria-label="Add to favorites"
-          >
-            <Heart size={15} fill={isFavorite ? '#f43f5e' : 'none'} className={isFavorite ? 'text-rose-500' : ''} />
-          </button>
-        )}
-
-        {/* Admin Actions Bar */}
-        {isAdmin && (
-          <div className="absolute top-3 right-3 z-30 flex gap-1.5">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(product);
-              }}
-              className="p-1.5 bg-emerald-650 hover:bg-emerald-700 text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer flex items-center justify-center"
-              title="Editar producto"
-            >
-              <Pencil size={12} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(product.id);
-              }}
-              className="p-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer flex items-center justify-center"
-              title="Eliminar producto"
-            >
-              <Trash2 size={12} />
-            </button>
-          </div>
-        )}
-
-        {/* Product Image */}
-        <img
-          src={displayImage}
-          alt={name}
-          className="relative z-10 max-h-full max-w-full object-contain p-2 transform group-hover:scale-110 group-hover:rotate-[-5deg] transition-all duration-500 ease-out cursor-pointer drop-shadow-lg"
-          onClick={() => onOpenDetail(product)}
-        />
-
-        {/* Quick View Overlay Button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none hidden sm:flex bg-black/5 backdrop-blur-[1px] z-20">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDetail(product);
-            }}
-            className="pointer-events-auto bg-zinc-950/90 hover:bg-black text-white text-[9px] font-bold py-2 px-5 uppercase tracking-[0.15em] rounded-full shadow-md cursor-pointer transition-all"
-          >
-            Vista Rápida
-          </button>
         </div>
       </div>
 
-      {/* Product Details Info */}
-      <div className="mt-4 flex flex-col flex-grow text-left space-y-1">
-        <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#3CA9E5]">
-          {category}
-        </span>
-        
-        {/* Name & Desc */}
-        <h3 
-          onClick={() => onOpenDetail(product)}
-          className="text-sm font-bold text-zinc-900 dark:text-white hover:text-[#3CA9E5] cursor-pointer line-clamp-1 transition-colors tracking-wide uppercase"
-        >
-          {name}
-        </h3>
-        
-        {product.description && (
-          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed font-light">
-            {product.description}
-          </p>
-        )}
+      {/* Subcategory label below name */}
+      {product.description && (
+        <p className="px-5 text-[10px] text-white/70 font-light line-clamp-1 z-10">
+          {product.description}
+        </p>
+      )}
 
-        {/* Variants Selection Thumbnails */}
-        {variants.length > 1 && (
-          <div className="flex gap-1.5 py-1">
-            {variants.map((v, idx) => (
-              <button
-                key={idx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveVariantIdx(idx);
-                }}
-                className={`w-5 h-6 overflow-hidden border flex items-center justify-center transition-all cursor-pointer ${
-                  activeVariantIdx === idx
-                    ? 'border-[#3CA9E5] scale-115 ring-1 ring-[#3CA9E5]/20'
-                    : 'border-zinc-200 dark:border-zinc-800 hover:scale-105'
-                }`}
-                title={v.color_name || `Variante ${idx + 1}`}
-              >
-                <img src={v.image_url} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Interactive Sizes selection bar directly on the card! */}
-        <div className="flex flex-wrap gap-1 py-1">
-          {availableSizes.map((size) => (
+      {/* ── Sizes row ── */}
+      {availableSizes.length > 0 && (
+        <div className="px-5 pt-2 flex flex-wrap gap-1 z-10">
+          {availableSizes.slice(0, 6).map(size => (
             <button
               key={size}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedSize(size);
-              }}
-              className={`text-[8px] font-bold px-1.5 py-0.5 border cursor-pointer transition-all rounded ${
+              onClick={(e) => { e.stopPropagation(); setSelectedSize(size); }}
+              className={`text-[8px] font-bold px-2 py-0.5 rounded-md border cursor-pointer transition-all ${
                 activeSize === size
-                  ? 'bg-zinc-950 text-white border-zinc-950 dark:bg-white dark:text-zinc-950 dark:border-white font-extrabold'
-                  : 'border-zinc-200 dark:border-zinc-850 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600'
+                  ? 'bg-white text-[#2196E0] border-white font-extrabold'
+                  : 'border-white/30 text-white/80 hover:border-white hover:bg-white/10'
               }`}
             >
               {size}
             </button>
           ))}
-        </div>
-
-        {/* Price & Add to Cart button */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-zinc-100 dark:border-zinc-850">
-          <div className="flex flex-col">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-sm font-extrabold text-zinc-950 dark:text-white">
-                ${resolvedPrice.toFixed(2)}
-              </span>
-              {resolvedOriginalPrice && (
-                <span className="text-[10px] text-zinc-400 line-through">
-                  ${resolvedOriginalPrice.toFixed(2)}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {!isAdmin && (
-            <button
-              onClick={handleQuickAdd}
-              className="p-2 bg-zinc-950 text-white hover:bg-[#3CA9E5] hover:text-white rounded-lg cursor-pointer transition-all duration-300 flex items-center justify-center"
-              aria-label="Add to cart"
-            >
-              <ShoppingBag size={13} />
-            </button>
+          {availableSizes.length > 6 && (
+            <span className="text-[8px] text-white/50 self-center">+{availableSizes.length - 6}</span>
           )}
         </div>
+      )}
+
+      {/* ── Discount badge ── */}
+      {discount > 0 && (
+        <div className="absolute top-3 right-16 z-20">
+          <span className="bg-rose-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+            -{discount}%
+          </span>
+        </div>
+      )}
+
+      {/* Out of stock overlay */}
+      {isOut && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-[1px]">
+          <span className="bg-white/90 text-zinc-900 text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full rotate-[-5deg] shadow-lg">
+            Agotado
+          </span>
+        </div>
+      )}
+
+      {/* ── Giant watermark text ── */}
+      <div className="absolute inset-0 flex items-center justify-end pr-4 select-none pointer-events-none z-0 overflow-hidden">
+        <span className="text-[7rem] font-black text-white/10 uppercase tracking-widest leading-none">
+          {(name || '').split(' ')[0]}
+        </span>
+      </div>
+
+      {/* ── Product image (rotated, center) ── */}
+      <div
+        className="relative flex-grow flex items-center justify-center py-4 px-6 min-h-[180px] z-10"
+        onClick={() => onOpenDetail(product)}
+      >
+        {displayImage ? (
+          <img
+            src={displayImage}
+            alt={name}
+            className="w-full max-h-[180px] object-contain transform rotate-[-12deg] group-hover:rotate-[-6deg] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_12px_24px_rgba(0,0,0,0.35)]"
+          />
+        ) : (
+          <div className="w-24 h-24 flex items-center justify-center">
+            <span className="text-6xl">👟</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Variant color dots ── */}
+      {variants.length > 1 && (
+        <div className="px-5 pb-2 flex gap-1.5 z-10">
+          {variants.map((v, idx) => (
+            <button
+              key={idx}
+              onClick={(e) => { e.stopPropagation(); setActiveVariantIdx(idx); }}
+              className={`w-4 h-4 rounded-full border-2 transition-all cursor-pointer ${
+                activeVariantIdx === idx ? 'border-white scale-125 shadow-md' : 'border-white/30'
+              }`}
+              style={{ backgroundColor: v.color_hex || '#fff' }}
+              title={v.color_name}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ── Bottom button ── */}
+      <div className="px-4 pb-4 z-10">
+        {isAdmin ? (
+          <button
+            onClick={() => onOpenDetail(product)}
+            className="w-full py-3.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-white/20 hover:border-white/40 transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Ver Producto</span>
+            <ArrowRight size={13} />
+          </button>
+        ) : (
+          <button
+            onClick={handleQuickAdd}
+            disabled={isOut}
+            className="w-full py-3.5 bg-white/15 hover:bg-white hover:text-[#2196E0] backdrop-blur-sm text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl border border-white/20 hover:border-white transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            <span>Ver Producto</span>
+            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        )}
       </div>
     </motion.div>
   );
