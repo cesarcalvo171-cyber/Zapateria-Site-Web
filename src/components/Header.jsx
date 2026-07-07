@@ -227,16 +227,16 @@ export default function Header({
 
         {/* Mobile Navigation Drawer with Accordions */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-zinc-900 bg-zinc-950 px-4 py-4 space-y-2 transition-all duration-300 overflow-y-auto max-h-[80vh]">
-            <p className="text-[10px] font-bold tracking-wider text-zinc-500 uppercase mb-2">Categorías</p>
+          <div className="lg:hidden border-t border-white/20 bg-[#3CA9E5] px-4 py-4 space-y-2 transition-all duration-300 overflow-y-auto max-h-[80vh] text-white">
+            <p className="text-[10px] font-black tracking-wider text-white/60 uppercase mb-2">Categorías</p>
             
             <button
               onClick={() => {
                 onSelectCategory('Todos', 'Todas');
                 setMobileMenuOpen(false);
               }}
-              className={`w-full text-left py-2 px-3 rounded-lg text-xs font-semibold tracking-wide uppercase flex justify-between items-center ${
-                selectedCategory === 'Todos' ? 'bg-zinc-900 text-[#FFC107]' : 'text-zinc-350'
+              className={`w-full text-left py-2 px-3 rounded-lg text-xs font-bold tracking-wide uppercase flex justify-between items-center ${
+                selectedCategory === 'Todos' ? 'bg-white/10 text-white font-black underline' : 'text-white/80'
               }`}
             >
               Inicio
@@ -248,22 +248,22 @@ export default function Header({
                 <div key={cat} className="space-y-1">
                   <button
                     onClick={() => toggleMobileCat(cat)}
-                    className={`w-full text-left py-2 px-3 rounded-lg text-xs font-semibold tracking-wide uppercase flex justify-between items-center ${
-                      selectedCategory === cat ? 'text-[#FFC107]' : 'text-zinc-350'
+                    className={`w-full text-left py-2 px-3 rounded-lg text-xs font-bold tracking-wide uppercase flex justify-between items-center ${
+                      selectedCategory === cat ? 'text-white' : 'text-white/85'
                     }`}
                   >
                     {cat}
                     {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </button>
                   {isExpanded && (
-                    <div className="pl-4 pr-2 py-1 space-y-1 bg-zinc-900/40 rounded-lg">
+                    <div className="pl-4 pr-2 py-1 space-y-1 bg-white/10 rounded-lg">
                       <button
                         onClick={() => {
                           onSelectCategory(cat, 'Todas');
                           setMobileMenuOpen(false);
                         }}
                         className={`w-full text-left py-1.5 px-3 text-[10px] uppercase font-semibold flex items-center justify-between ${
-                          selectedCategory === cat && selectedSubcategory === 'Todas' ? 'text-[#FFC107]' : 'text-zinc-450'
+                          selectedCategory === cat && selectedSubcategory === 'Todas' ? 'text-white font-black' : 'text-white/70'
                         }`}
                       >
                         Ver Todo {cat}
@@ -276,7 +276,7 @@ export default function Header({
                             setMobileMenuOpen(false);
                           }}
                           className={`w-full text-left py-1.5 px-3 text-[10px] uppercase flex items-center justify-between ${
-                            selectedCategory === cat && selectedSubcategory === sub ? 'text-[#FFC107] font-semibold' : 'text-zinc-450'
+                            selectedCategory === cat && selectedSubcategory === sub ? 'text-white font-bold' : 'text-white/70'
                           }`}
                         >
                           {sub}
@@ -296,8 +296,8 @@ export default function Header({
                   onSelectCategory(cat, 'Todas');
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full text-left py-2 px-3 rounded-lg text-xs font-semibold tracking-wide uppercase flex justify-between items-center ${
-                  selectedCategory === cat ? 'bg-zinc-900 text-[#FFC107]' : 'text-zinc-350'
+                className={`w-full text-left py-2 px-3 rounded-lg text-xs font-bold tracking-wide uppercase flex justify-between items-center ${
+                  selectedCategory === cat ? 'bg-white/10 text-white font-black underline' : 'text-white/80'
                 }`}
               >
                 {cat}
@@ -310,7 +310,7 @@ export default function Header({
                 const element = document.getElementById('footer');
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="w-full text-left py-2 px-3 rounded-lg text-xs font-semibold tracking-wide uppercase text-zinc-350"
+              className="w-full text-left py-2 px-3 rounded-lg text-xs font-bold tracking-wide uppercase text-white/80"
             >
               Contacto
             </button>
