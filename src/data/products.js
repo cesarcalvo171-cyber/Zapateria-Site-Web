@@ -1,63 +1,80 @@
 export const products = [
   {
     id: '1',
-    name: 'Liquid Brun - French Avenue',
+    name: 'Air Max Speed Turf Blue',
     price: 85.00,
     originalPrice: 110.00,
-    category: 'Perfumes Hombre',
-    description: 'Una fragancia rica y embriagadora. Presenta notas cálidas y especiadas que evocan lujo y elegancia. Presentado en un frasco octagonal de diseño excepcional con detalles dorados.',
-    sizes: ['100ml'],
+    category: 'Hombre',
+    subcategory: 'Deportivo',
+    brand: 'Nike',
+    description: 'Zapatillas de alto rendimiento con correa ajustable en el mediopié para un ajuste firme. Suela de tracción duradera ideal para la cancha o las calles.',
+    sizes: ['40', '41', '42', '43'],
     colors: [],
-    image: '/images/liquid_brun.png',
-    images: ['/images/liquid_brun.png'],
+    image: '/images/air_max_speed_turf.png',
+    images: ['/images/air_max_speed_turf.png'],
     rating: 4.8,
     reviewsCount: 120,
     details: [
-      'Familia Olfativa: Amaderada Especiada',
-      'Notas de Salida: Canela, Nuez Moscada',
-      'Notas de Corazón: Praliné, Vainilla',
-      'Notas de Fondo: Madera de Oud, Ámbar'
+      'Marca: Nike',
+      'Material Exterior: Cuero y Malla transpirable',
+      'Suela: Goma de alta tracción',
+      'Ajuste: Cordones y Correa de velcro',
+      'Estilo: Deportivo / Retro'
     ]
   },
   {
     id: '2',
-    name: 'Naughty Dates - Aromatix',
-    price: 95.00,
-    category: 'Unisex',
-    description: 'Extrait de Parfum exclusivo. Una mezcla atrevida y seductora, donde el dulzor de los dátiles se encuentra con maderas profundas y un toque de misterio.',
-    sizes: ['50ml', '100ml'],
+    name: 'Air Jordan Retro 7',
+    price: 150.00,
+    originalPrice: 180.00,
+    category: 'Hombre',
+    subcategory: 'Tenis',
+    brand: 'Nike',
+    description: 'Extrait de estilo urbano. El Air Jordan Retro 7 combina cuero premium con un diseño clásico de caña alta que ofrece máxima comodidad y soporte dinámico.',
+    sizes: ['41', '42', '43', '44'],
     colors: [],
-    image: '/images/naughty_dates.png',
-    images: ['/images/naughty_dates.png'],
+    image: '/images/air_jordan_retro.png',
+    images: ['/images/air_jordan_retro.png'],
     rating: 4.9,
     reviewsCount: 85,
     details: [
-      'Familia Olfativa: Oriental Gourmand',
-      'Notas de Salida: Dátiles, Frutos Secos',
-      'Notas de Corazón: Caramelo, Haba Tonka',
-      'Notas de Fondo: Sándalo, Almizcle Oscuro'
+      'Marca: Nike (Jordan)',
+      'Material Exterior: Cuero premium y Durabuck',
+      'Suela: Unidad Air-Sole encapsulada',
+      'Ajuste: Cordones',
+      'Estilo: Casual / Urbano'
     ]
   },
   {
     id: '3',
-    name: '9pm - Afnan',
-    price: 55.00,
-    originalPrice: 70.00,
-    category: 'Perfumes Hombre',
-    description: 'La fragancia perfecta para la noche. Un aroma dulce, avainillado y seductor que deja una estela inolvidable allá por donde pases.',
-    sizes: ['100ml'],
+    name: 'Air Max 270 Dusty',
+    price: 120.00,
+    originalPrice: 150.00,
+    category: 'Mujer',
+    subcategory: 'Tenis',
+    brand: 'Nike',
+    description: 'La primera unidad Max Air de Nike diseñada para el día a día. Estilo moderno, tejido transpirable y amortiguación elástica de 270 grados.',
+    sizes: ['37', '38', '39', '40'],
     colors: [],
-    image: '/images/9pm.png',
-    images: ['/images/9pm.png'],
+    image: '/images/air_max_270.png',
+    images: ['/images/air_max_270.png'],
     rating: 4.7,
-    reviewsCount: 340,
+    reviewsCount: 140,
     details: [
-      'Familia Olfativa: Ámbar Vainilla',
-      'Notas de Salida: Manzana, Canela, Lavanda',
-      'Notas de Corazón: Flor de Azahar, Lirio de los Valles',
-      'Notas de Fondo: Vainilla, Haba Tonka, Ámbar'
+      'Marca: Nike',
+      'Material Exterior: Tejido de malla transpirable',
+      'Suela: Cámara de aire 270 Max Air',
+      'Ajuste: Elástico con cordones',
+      'Estilo: Deportivo / Casual'
     ]
   }
 ];
 
-export const categories = ['Todos', 'Perfumes Mujer', 'Perfumes Hombre', 'Unisex', 'Sets de Regalo', 'Cuidado Corporal', 'Novedades'];
+export const categories = ['Todos', 'Hombre', 'Mujer', 'Niños', 'Marcas', 'Novedades', 'Ofertas'];
+
+export const subcategories = {
+  'Hombre': ['Tenis', 'Casual', 'Formal', 'Deportivo', 'Botas', 'Sandalias', 'Mocasines', 'Ofertas'],
+  'Mujer': ['Tenis', 'Casual', 'Tacones', 'Flats', 'Sandalias', 'Botines', 'Botas', 'Ofertas'],
+  'Niños': ['Niño', 'Niña', 'Escolar', 'Deportivo', 'Sandalias', 'Bebés']
+};
+

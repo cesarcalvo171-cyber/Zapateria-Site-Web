@@ -25,7 +25,7 @@ export default function ProductCard({
   const activeVariant = hasVariants ? variants[activeVariantIdx] : null;
 
   // Active image & colors
-  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/perfume_oud.png');
+  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/air_max_speed_turf.png');
   const colorsList = hasVariants 
     ? variants.map(v => ({ name: v.color_name, hex: v.color_hex }))
     : (product.colors || []);

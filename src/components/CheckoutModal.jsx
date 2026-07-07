@@ -60,11 +60,11 @@ export default function CheckoutModal({
 
     cartItems.forEach((item) => {
       const variantName = item.selectedColor?.name || 'Variante 1';
-      const sizeStr = item.selectedSize ? item.selectedSize.replace(/(\d+)\s*(ml)/i, '$1 $2') : 'Única';
+      const sizeStr = item.selectedSize || 'Única';
       const quantityStr = `${item.quantity} ${item.quantity === 1 ? 'unidad' : 'unidades'}`;
       
       msg += `    Producto: ${item.name} (${variantName})\n\n`;
-      msg += `    Tamaño: ${sizeStr}\n\n`;
+      msg += `    Talla: ${sizeStr}\n\n`;
       msg += `    Cantidad: ${quantityStr}\n\n`;
       
       let imageUrl = '';
@@ -395,7 +395,7 @@ export default function CheckoutModal({
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold line-clamp-1 uppercase text-zinc-800 dark:text-zinc-200">{item.name}</p>
                         <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
-                          Tamaño: {item.selectedSize} {item.product_variants && item.product_variants.length > 1 && item.selectedColor?.name ? `· ${item.selectedColor.name}` : ''}
+                          Talla: {item.selectedSize} {item.product_variants && item.product_variants.length > 1 && item.selectedColor?.name ? `· ${item.selectedColor.name}` : ''}
                         </p>
                         <p className="text-[10px] text-zinc-600 dark:text-zinc-400 font-semibold mt-0.5">
                           {item.quantity} × ${item.price.toFixed(2)}

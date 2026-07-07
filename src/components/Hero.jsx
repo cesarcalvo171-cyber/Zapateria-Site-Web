@@ -24,7 +24,7 @@ export default function Hero({ onExploreClick, featuredProducts = [], settings =
 
   // Determine active product & image
   const activeProduct = hasFeatured ? featuredProducts[currentIdx] : null;
-  const displayImage = activeProduct?.product_variants?.[0]?.image_url || activeProduct?.image || '/images/liquid_brun.png';
+  const displayImage = activeProduct?.product_variants?.[0]?.image_url || activeProduct?.image || '/images/air_max_speed_turf.png';
 
   return (
     <section className="relative overflow-hidden bg-transparent">
@@ -35,15 +35,14 @@ export default function Hero({ onExploreClick, featuredProducts = [], settings =
           <div className="lg:col-span-6 space-y-6 sm:space-y-8 text-left z-10 pl-4 lg:pl-0">
             <div className="space-y-6">
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-wide text-white leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-wide text-white leading-[1.1] uppercase">
                ENCUENTRA   <br/>
-                <span className="italic font-serif">TU
-FRAGANCIA</span> 
+                <span className="italic font-serif text-[#FFC107]">TU ESTILO</span> 
               </h1>
             </div>
             
             <p className="text-zinc-400 text-sm sm:text-base font-light leading-relaxed max-w-md">
-              Perfumes de larga duración que combinan con tu estado de ánimo, estilo y personalidad.
+              Calzado premium que combina comodidad, diseño y rendimiento para cada paso de tu día.
             </p>
             
             <div className="pt-2">

@@ -3,9 +3,10 @@ import { supabase } from '../supabaseClient';
 import { X, Plus, Trash2, LogIn, UserPlus, LogOut, Check, ChevronLeft, Image as ImageIcon, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SalesAdminTab from './SalesAdminTab';
+import { subcategories as SUBCATEGORIES } from '../data/products';
 
-const CATEGORIES = ['Perfumes Hombre', 'Perfumes Mujer', 'Unisex', 'Sets de Regalo', 'Otros'];
-const AVAILABLE_SIZES = ['30ml', '50ml', '75ml', '100ml', '125ml', '150ml', '200ml', 'Única'];
+const CATEGORIES = ['Hombre', 'Mujer', 'Niños', 'Marcas', 'Novedades', 'Ofertas', 'Otros'];
+const AVAILABLE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', 'Única'];
 
 export default function AdminPanel({ 
   onClose, 
@@ -38,6 +39,7 @@ export default function AdminPanel({
   const [originalPrice, setOriginalPrice] = useState('');
   const [costPrice, setCostPrice] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [subcategory, setSubcategory] = useState('');
   const [detailsInput, setDetailsInput] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   
@@ -86,6 +88,7 @@ export default function AdminPanel({
       setOriginalPrice(productToEdit.original_price || '');
       setCostPrice(productToEdit.cost_price || '');
       setCategory(productToEdit.category || CATEGORIES[0]);
+      setSubcategory(productToEdit.subcategory || '');
       setDetailsInput(productToEdit.details ? productToEdit.details.join('\n') : '');
       setIsFeatured(productToEdit.is_featured || false);
       
@@ -112,6 +115,7 @@ export default function AdminPanel({
       setOriginalPrice('');
       setCostPrice('');
       setCategory(CATEGORIES[0]);
+      setSubcategory('');
       setDetailsInput('');
       setIsFeatured(false);
       setVariants([{ color_name: 'Variante 1', color_hex: '#000000', sizes: [], stock_by_size: {}, price_by_size: {}, cost_price_by_size: {}, original_price_by_size: {}, file: null, previewUrl: '' }]);
@@ -154,18 +158,19 @@ export default function AdminPanel({
 
   const handleDownloadTemplate = (e) => {
     e.preventDefault();
-    const headers = ['nombre', 'descripcion', 'categoria', 'destacado', 'detalles', 'nombre_imagen_archivo', 'tallas', 'stock', 'precios', 'costos', 'originales'];
+    const headers = ['nombre', 'descripcion', 'categoria', 'subcategoria', 'destacado', 'detalles', 'nombre_imagen_archivo', 'tallas', 'stock', 'precios', 'costos', 'originales'];
     const row = [
-      '"Club De Nuit Men"',
-      '"Fragancia masculina con notas cítricas e intensas, ideal para uso nocturno."',
-      '"Perfumes Hombre"',
+      '"Air Max Speed Turf"',
+      '"Zapatillas de alto rendimiento con correa ajustable en el mediopié para un ajuste firme."',
+      '"Hombre"',
+      '"Deportivo"',
       'TRUE',
-      '"Larga duracion|Notas de salida: bergamota y limon|Fondo avainillado"',
-      'club_de_nuit.png',
-      '"50ml,100ml"',
-      '"10,20"',
-      '"45.00,85.00"',
-      '"25.00,45.00"',
+      '"Marca: Nike|Material: Cuero|Suela: Goma"',
+      'air_max_speed_turf.png',
+      '"40,41,42"',
+      '"10,15,20"',
+      '"85.00,85.00,85.00"',
+      '"45.00,45.00,45.00"',
       '""'
     ];
     const csvContent = [headers.join(','), row.join(',')].join('\n');
@@ -173,7 +178,7 @@ export default function AdminPanel({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'plantilla_catalogo_perfumes.csv');
+    link.setAttribute('download', 'plantilla_catalogo_calzado.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -209,6 +214,7 @@ export default function AdminPanel({
           nombre: headers.indexOf('nombre'),
           descripcion: headers.indexOf('descripcion'),
           categoria: headers.indexOf('categoria'),
+          subcategoria: headers.indexOf('subcategoria'),
           destacado: headers.indexOf('destacado'),
           detalles: headers.indexOf('detalles'),
           nombre_imagen_archivo: headers.indexOf('nombre_imagen_archivo'),
@@ -275,6 +281,7 @@ export default function AdminPanel({
               name: nameVal,
               description: row[idx.descripcion]?.trim() || '',
               category: row[idx.categoria]?.trim() || CATEGORIES[0],
+              subcategory: idx.subcategoria !== -1 ? row[idx.subcategoria]?.trim() || '' : '',
               is_featured: row[idx.destacado]?.trim().toUpperCase() === 'TRUE',
               details: detailsArray,
               price: firstPriceArray[0] || 0,
@@ -339,6 +346,7 @@ export default function AdminPanel({
               original_price: product.original_price,
               cost_price: product.cost_price,
               category: product.category,
+              subcategory: product.subcategory,
               details: product.details,
               is_featured: product.is_featured
             })
@@ -602,6 +610,7 @@ export default function AdminPanel({
           original_price: productOriginalPrice,
           cost_price: productCostPrice,
           category,
+          subcategory,
           details: detailsArray,
           is_featured: isFeatured
         })
@@ -656,6 +665,7 @@ export default function AdminPanel({
       setOriginalPrice('');
       setCostPrice('');
       setCategory(CATEGORIES[0]);
+      setSubcategory('');
       setDetailsInput('');
       setIsFeatured(false);
       
@@ -711,6 +721,7 @@ export default function AdminPanel({
           original_price: productOriginalPrice,
           cost_price: productCostPrice,
           category,
+          subcategory,
           details: detailsArray,
           is_featured: isFeatured
         })
@@ -833,12 +844,12 @@ export default function AdminPanel({
         <div className="flex items-center gap-3">
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-850 rounded-full transition-colors cursor-pointer"
-            aria-label="Back"
+            className="p-2 text-zinc-400 hover:text-white rounded-full bg-zinc-900/50 cursor-pointer"
+            aria-label="Cerrar panel de administración"
           >
-            <ChevronLeft size={20} />
+            <X size={18} />
           </button>
-          <h1 className="text-lg font-bold uppercase tracking-wider">Perfumeria Admin</h1>
+          <h1 className="text-lg font-bold uppercase tracking-wider">Zapatería Admin</h1>
         </div>
 
         {session && (
@@ -859,17 +870,17 @@ export default function AdminPanel({
             onClick={() => setActiveTab('products')}
             className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
               activeTab === 'products'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white'
-                : 'border-transparent text-zinc-400 hover:text-zinc-650'
+                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
+                : 'border-transparent text-zinc-450 hover:text-zinc-900 dark:hover:text-zinc-200'
             }`}
           >
-            Gestión de Perfumes
+            Gestión de Calzado
           </button>
           <button
             onClick={() => setActiveTab('hero')}
             className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
               activeTab === 'hero'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white'
+                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
                 : 'border-transparent text-zinc-400 hover:text-zinc-650'
             }`}
           >
@@ -879,7 +890,7 @@ export default function AdminPanel({
             onClick={() => setActiveTab('sales')}
             className={`text-xs font-bold uppercase tracking-wider pb-1.5 border-b-2 cursor-pointer transition-all ${
               activeTab === 'sales'
-                ? 'border-black dark:border-white text-zinc-950 dark:text-white'
+                ? 'border-black dark:border-white text-zinc-950 dark:text-white font-bold'
                 : 'border-transparent text-zinc-400 hover:text-zinc-650'
             }`}
           >
@@ -962,7 +973,7 @@ export default function AdminPanel({
           {/* LEFT: Add/Edit Product Form (7 cols) */}
           <div className="lg:col-span-7 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-sm">
             <h2 className="text-base font-bold uppercase tracking-widest pb-3 mb-6">
-              {productToEdit ? 'Editar Perfume Existente' : 'Agregar Nuevo Perfume'}
+              {productToEdit ? 'Editar Calzado Existente' : 'Agregar Nuevo Calzado'}
             </h2>
 
             {!productToEdit && (
@@ -1020,31 +1031,55 @@ export default function AdminPanel({
 
             <form onSubmit={productToEdit ? handleUpdateProduct : handleSubmitProduct} className="space-y-6">
               
-              {/* Product Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Nombre del Perfume</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Nombre del Calzado</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Ej: Liquid Brun - French Avenue"
+                    placeholder="Ej: Air Max Speed Turf Blue"
                     className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Categoría</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
-                  >
-                    {CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Categoría</label>
+                    <select
+                      value={category}
+                      onChange={(e) => {
+                        setCategory(e.target.value);
+                        setSubcategory('');
+                      }}
+                      className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Subcategoría</label>
+                    <select
+                      value={subcategory}
+                      onChange={(e) => setSubcategory(e.target.value)}
+                      disabled={!SUBCATEGORIES[category]}
+                      className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white disabled:opacity-50"
+                    >
+                      {!SUBCATEGORIES[category] && <option value="">Ninguna</option>}
+                      {SUBCATEGORIES[category] && (
+                        <>
+                          <option value="">Seleccionar Subcategoría</option>
+                          {SUBCATEGORIES[category].map(sub => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -1099,7 +1134,7 @@ export default function AdminPanel({
                   className="w-4 h-4 text-emerald-600 border-zinc-300 focus:ring-emerald-500 cursor-pointer accent-emerald-600"
                 />
                 <label htmlFor="is_featured" className="text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-450 cursor-pointer select-none">
-                  Destacar este perfume en el Hero (Carrusel de Portada)
+                  Destacar este calzado en el Hero (Carrusel de Portada)
                 </label>
               </div>
 
@@ -1191,7 +1226,7 @@ export default function AdminPanel({
 
                       {/* Sizes selection */}
                       <div>
-                        <span className="block text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1.5">Tamaños Disponibles (ml):</span>
+                        <span className="block text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1.5">Tallas Disponibles (Size):</span>
                         <div className="flex flex-wrap gap-1.5">
                           {AVAILABLE_SIZES.map(size => {
                             const isChecked = variant.sizes.includes(size);
@@ -1202,7 +1237,7 @@ export default function AdminPanel({
                                 onClick={() => handleSizeToggle(vIdx, size)}
                                 className={`text-[10px] font-semibold px-2.5 py-1 border transition-all cursor-pointer ${
                                   isChecked
-                                    ? 'bg-black text-[#FAF9F6] border-black dark:bg-white dark:text-zinc-950 dark:border-white'
+                                    ? 'bg-black text-[#FAF9F6] border-black dark:bg-white dark:text-zinc-950 dark:border-white font-bold'
                                     : 'border-zinc-200 dark:border-zinc-850 text-zinc-450 hover:border-zinc-455'
                                 }`}
                               >
@@ -1215,7 +1250,7 @@ export default function AdminPanel({
                         {/* Active sizes details inputs */}
                         {variant.sizes && variant.sizes.length > 0 && (
                           <div className="mt-3 space-y-2 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-                            <span className="block text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Precios e Inventario por Tamaño:</span>
+                            <span className="block text-[9px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Precios e Inventario por Talla:</span>
                             <div className="space-y-2.5">
                               {variant.sizes.map(size => (
                                 <div key={size} className="flex flex-wrap items-center gap-3 bg-white dark:bg-zinc-900/50 p-2.5 border border-zinc-200 dark:border-zinc-850">
@@ -1322,7 +1357,7 @@ export default function AdminPanel({
 
           {/* RIGHT: Existing Products List (5 cols) */}
           <div className="lg:col-span-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm flex flex-col max-h-[85vh] overflow-hidden">
-            <h2 className="text-base font-bold uppercase tracking-widest pb-3 mb-4">Perfumes Existentes ({productsList.length})</h2>
+            <h2 className="text-base font-bold uppercase tracking-widest pb-3 mb-4">Calzados Existentes ({productsList.length})</h2>
 
             {loadingProducts ? (
               <div className="flex-1 flex items-center justify-center text-xs text-zinc-400 py-12">
@@ -1363,7 +1398,7 @@ export default function AdminPanel({
                             )}
                           </h4>
                           <p className="text-[10px] text-zinc-400 mt-0.5">
-                            {product.category} • <span className="font-bold text-zinc-650 dark:text-zinc-350">${product.price.toFixed(2)} USD (C${(product.price * 36.5).toFixed(0)})</span>
+                            {product.category} {product.subcategory ? `> ${product.subcategory}` : ''} • <span className="font-bold text-zinc-650 dark:text-zinc-350">${product.price.toFixed(2)} USD (C${(product.price * 36.5).toFixed(0)})</span>
                           </p>
                           {/* Variants preview */}
                           <p className="text-[9px] text-zinc-400 dark:text-zinc-500 mt-1 uppercase tracking-wider">

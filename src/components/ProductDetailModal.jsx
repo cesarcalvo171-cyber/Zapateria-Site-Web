@@ -103,7 +103,7 @@ export default function ProductDetailModal({
   const discount = resolvedOriginalPrice ? Math.round(((resolvedOriginalPrice - resolvedPrice) / resolvedOriginalPrice) * 100) : 0;
 
   // Image to display
-  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/perfume_oud.png');
+  const displayImage = activeVariant ? activeVariant.image_url : (product.image || '/images/air_max_speed_turf.png');
 
   return (
     <AnimatePresence>
@@ -211,7 +211,7 @@ export default function ProductDetailModal({
                 {availableSizes.length > 0 && (
                   <div className="space-y-2">
                     <span className="text-xs font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">
-                      Tamaño: <span className="text-zinc-900 dark:text-white font-medium ml-1">{selectedSize}</span>
+                      Talla: <span className="text-zinc-900 dark:text-white font-medium ml-1">{selectedSize}</span>
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {availableSizes.map((size) => {
@@ -249,7 +249,7 @@ export default function ProductDetailModal({
                 )}
                 {currentStock === 0 && (
                   <div className="inline-block mt-2 px-2 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-500 text-[10px] font-bold tracking-wider uppercase border border-rose-200 dark:border-rose-800/50">
-                    Agotado en este tamaño
+                    Agotado en esta talla
                   </div>
                 )}
               </div>

@@ -7,7 +7,7 @@ import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './supabaseClient';
-import { categories } from './data/products';
+import { categories, subcategories } from './data/products';
 import { SlidersHorizontal, Heart, X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,6 +40,7 @@ export default function App() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('Todas');
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -175,7 +176,7 @@ export default function App() {
     
     // Determine color & size defaults based on active variant
     const itemColor = color || (variants.length > 0 ? { name: variants[0].color_name, hex: variants[0].color_hex } : null);
-    const itemSize = size || (variants.length > 0 ? variants[0].sizes[0] : (product.sizes?.[0] || '100ml'));
+    const itemSize = size || (variants.length > 0 ? variants[0].sizes[0] : (product.sizes?.[0] || '40'));
 
     // Find the variant matching the selected color/name
     const activeVar = variants.find(v => v.color_name === itemColor?.name) || variants[0];
@@ -213,7 +214,7 @@ export default function App() {
           quantity,
           selectedSize: itemSize,
           selectedColor: itemColor,
-          image: activeVar?.image_url || product.image || '/images/liquid_brun.png'
+          image: activeVar?.image_url || product.image || '/images/air_max_speed_turf.png'
         }];
       }
     });
@@ -252,6 +253,7 @@ export default function App() {
     setShowOnlyFavorites(!showOnlyFavorites);
     if (!showOnlyFavorites) {
       setSelectedCategory('Todos');
+      setSelectedSubcategory('Todas');
     }
   };
 
@@ -260,9 +262,19 @@ export default function App() {
     const matchesSearch = searchQuery.trim() === '' || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.subcategory && product.subcategory.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
+    let matchesCategory = true;
+    if (selectedCategory === 'Todos') {
+      matchesCategory = true;
+    } else if (selectedCategory === 'Ofertas') {
+      matchesCategory = (product.original_price > product.price) || (product.originalPrice > product.price);
+    } else {
+      matchesCategory = product.category === selectedCategory;
+    }
+
+    const matchesSubcategory = selectedSubcategory === 'Todas' || product.subcategory === selectedSubcategory;
     const matchesFavorites = !showOnlyFavorites || favorites.includes(product.id);
 
     // Matches size in any of the variants
@@ -279,7 +291,7 @@ export default function App() {
         : (product.colors && product.colors.some(c => c.name === selectedColor))
     );
 
-    return matchesSearch && matchesCategory && matchesFavorites && matchesSize && matchesColor;
+    return matchesSearch && matchesCategory && matchesSubcategory && matchesFavorites && matchesSize && matchesColor;
   }).sort((a, b) => {
     if (sortBy === 'price-asc') return a.price - b.price;
     if (sortBy === 'price-desc') return b.price - a.price;
@@ -293,6 +305,7 @@ export default function App() {
     setSortBy('default');
     setSearchQuery('');
     setSelectedCategory('Todos');
+    setSelectedSubcategory('Todas');
     setShowOnlyFavorites(false);
   };
 
@@ -376,10 +389,12 @@ export default function App() {
         setSearchQuery={setSearchQuery}
         categories={categories}
         selectedCategory={selectedCategory}
-        setSelectedCategory={(cat) => {
+        onSelectCategory={(cat, sub = 'Todas') => {
           setSelectedCategory(cat);
+          setSelectedSubcategory(sub);
           setShowOnlyFavorites(false);
         }}
+        selectedSubcategory={selectedSubcategory}
         isAdmin={isAdmin}
       />
 
@@ -407,11 +422,12 @@ export default function App() {
           </div>
           
           <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full max-w-3xl">
-            {['Todos', 'Perfumes Hombre', 'Perfumes Mujer', 'Unisex'].map(tab => (
+            {['Todos', 'Hombre', 'Mujer', 'Niños'].map(tab => (
               <button
                 key={tab}
                 onClick={() => {
                   setSelectedCategory(tab);
+                  setSelectedSubcategory('Todas');
                   setShowOnlyFavorites(false);
                 }}
                 className={`flex-1 min-w-[120px] py-2.5 px-4 text-xs sm:text-sm font-medium border transition-all duration-300 cursor-pointer uppercase tracking-wider ${
@@ -420,7 +436,7 @@ export default function App() {
                     : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-white'
                 }`}
               >
-                {tab === 'Todos' ? 'Todos' : tab.replace('Perfumes ', '')}
+                {tab}
               </button>
             ))}
           </div>
@@ -443,7 +459,7 @@ export default function App() {
               <SlidersHorizontal size={36} className="text-zinc-300" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base font-semibold uppercase tracking-wider">No se encontraron fragancias</h3>
+              <h3 className="text-base font-semibold uppercase tracking-wider">No se encontró calzado</h3>
               <p className="text-sm text-zinc-500 font-light max-w-sm">Prueba ajustando los filtros o la búsqueda para encontrar lo que necesitas.</p>
             </div>
             <button
@@ -481,41 +497,40 @@ export default function App() {
 
       {/* Footer Design */}
       {!isAdmin && (
-        <footer className="bg-zinc-100 dark:bg-zinc-900 py-16 px-4 transition-colors duration-300">
-          <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-10 text-left">
+        <footer id="footer" className="bg-zinc-950 py-16 px-4 border-t border-zinc-900 transition-colors duration-300">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-left">
             
             {/* Column 1: Brand Info */}
             <div className="space-y-4">
-              <h2 className="text-xl font-light tracking-[0.25em] uppercase text-[#D4AF37]">AROMATIC</h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-light leading-relaxed max-w-xs">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              <h2 className="text-xl font-bold tracking-[0.25em] uppercase text-[#FFC107]">ZAPATERÍA</h2>
+              <p className="text-xs text-zinc-400 font-light leading-relaxed max-w-xs">
+                Calzado premium que combina comodidad, diseño y rendimiento para cada paso de tu día.
               </p>
-              <div className="text-[10px] text-zinc-450 dark:text-zinc-500 font-mono flex items-center flex-wrap">
-                <span>© {new Date().getFullYear()} Aromatic. Todos los derechos reservados.</span>
+              <div className="text-[10px] text-zinc-550 font-mono flex items-center flex-wrap">
+                <span>© {new Date().getFullYear()} Zapatería. Todos los derechos reservados.</span>
               </div>
             </div>
 
             {/* Column 2: Links */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[#D4AF37]">Lorem Ipsum</h4>
-              <ul className="space-y-2 text-xs font-light text-zinc-650 dark:text-zinc-400">
-                <li><button onClick={() => setSelectedCategory('Perfumes Mujer')} className="hover:text-[#D4AF37] cursor-pointer transition-colors uppercase">Dolor Sit</button></li>
-                <li><button onClick={() => setSelectedCategory('Perfumes Hombre')} className="hover:text-[#D4AF37] cursor-pointer transition-colors uppercase">Amet Consectetur</button></li>
-                <li><button onClick={() => setSelectedCategory('Unisex')} className="hover:text-[#D4AF37] cursor-pointer transition-colors uppercase">Adipiscing Elit</button></li>
-                <li><button onClick={() => setSelectedCategory('Sets de Regalo')} className="hover:text-[#D4AF37] cursor-pointer transition-colors uppercase">Tempor Incididunt</button></li>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-[#FFC107]">Categorías</h4>
+              <ul className="space-y-2 text-xs font-light text-zinc-400">
+                <li><button onClick={() => { setSelectedCategory('Hombre'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Hombre</button></li>
+                <li><button onClick={() => { setSelectedCategory('Mujer'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Mujer</button></li>
+                <li><button onClick={() => { setSelectedCategory('Niños'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Niños</button></li>
+                <li><button onClick={() => { setSelectedCategory('Ofertas'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Ofertas</button></li>
               </ul>
             </div>
 
             {/* Column 3: Help */}
             <div className="space-y-3">
-            
-              <ul className="space-y-2 text-xs font-light text-zinc-600 dark:text-zinc-400">
-                <li><a href="#" className="hover:text-black dark:hover:text-white transition-colors">Ut enim ad minim</a></li>
-                <li><a href="#" className="hover:text-black dark:hover:text-white transition-colors">Veniam quis nostrud</a></li>
-
+              <h4 className="text-xs font-bold uppercase tracking-widest text-[#FFC107]">Contacto & Ayuda</h4>
+              <ul className="space-y-2 text-xs font-light text-zinc-400">
+                <li>Soporte al cliente: <span className="text-white">soporte@zapateria.com</span></li>
+                <li>Dirección: <span className="text-white">Av. Principal 123, Ciudad</span></li>
+                <li>Garantía de cambio de talla</li>
               </ul>
             </div>
-
             
           </div>
         </footer>
