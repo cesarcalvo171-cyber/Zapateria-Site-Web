@@ -437,8 +437,8 @@ export default function App() {
                   }}
                   className={`py-2 px-5 text-xs font-bold border-2 transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-full ${
                     selectedCategory === tab
-                      ? 'bg-zinc-950 text-white border-zinc-950 shadow-md'
-                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-950 hover:text-zinc-950'
+                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-md'
+                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                   }`}
                 >
                   {tab}
@@ -458,8 +458,8 @@ export default function App() {
                     onClick={() => setSortBy(opt.value)}
                     className={`py-1.5 px-3 text-[10px] font-semibold border rounded-full cursor-pointer transition-all ${
                       sortBy === opt.value
-                        ? 'bg-zinc-950 text-white border-zinc-950'
-                        : 'border-zinc-200 text-zinc-500 hover:border-zinc-400 bg-white'
+                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                        : 'border-zinc-200 text-zinc-500 hover:border-[#3CA9E5] hover:text-[#3CA9E5] bg-white'
                     }`}
                   >
                     {opt.label}
