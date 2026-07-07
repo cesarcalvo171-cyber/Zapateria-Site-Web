@@ -570,39 +570,37 @@ export default function App() {
 
       {/* Footer Design */}
       {!isAdmin && (
-        <footer id="footer" className="bg-zinc-950 py-16 px-4 border-t border-zinc-900 transition-colors duration-300">
+        <footer id="footer" className="bg-[#3CA9E5] py-16 px-4 border-t border-white/10 text-white transition-colors duration-300">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-left">
             
             {/* Column 1: Brand Info */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold tracking-[0.25em] uppercase text-[#FFC107]">ZAPATERÍA</h2>
-              <p className="text-xs text-zinc-400 font-light leading-relaxed max-w-xs">
-                Calzado premium que combina comodidad, diseño y rendimiento para cada paso de tu día.
+              <h2 className="text-xl font-black tracking-[0.25em] uppercase text-white">ZAPATERÍA</h2>
+              <p className="text-xs text-white/80 font-light leading-relaxed max-w-xs">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </p>
-              <div className="text-[10px] text-zinc-550 font-mono flex items-center flex-wrap">
+              <div className="text-[10px] text-white/60 font-mono">
                 <span>© {new Date().getFullYear()} Zapatería. Todos los derechos reservados.</span>
               </div>
             </div>
 
             {/* Column 2: Links */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[#FFC107]">Categorías</h4>
-              <ul className="space-y-2 text-xs font-light text-zinc-400">
-                <li><button onClick={() => { setSelectedCategory('Hombre'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Hombre</button></li>
-                <li><button onClick={() => { setSelectedCategory('Mujer'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Mujer</button></li>
-                <li><button onClick={() => { setSelectedCategory('Niños'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Niños</button></li>
-                <li><button onClick={() => { setSelectedCategory('Ofertas'); setSelectedSubcategory('Todas'); }} className="hover:text-[#FFC107] cursor-pointer transition-colors uppercase">Ofertas</button></li>
+              <h4 className="text-xs font-black uppercase tracking-widest text-white">Categorías</h4>
+              <ul className="space-y-2 text-xs font-light text-white/80">
+                <li><button onClick={() => { setSelectedCategory('Hombre'); setSelectedSubcategory('Todas'); }} className="hover:underline hover:text-white cursor-pointer transition-all uppercase">Hombre</button></li>
+                <li><button onClick={() => { setSelectedCategory('Mujer'); setSelectedSubcategory('Todas'); }} className="hover:underline hover:text-white cursor-pointer transition-all uppercase">Mujer</button></li>
+                <li><button onClick={() => { setSelectedCategory('Niños'); setSelectedSubcategory('Todas'); }} className="hover:underline hover:text-white cursor-pointer transition-all uppercase">Niños</button></li>
+                <li><button onClick={() => { setSelectedCategory('Ofertas'); setSelectedSubcategory('Todas'); }} className="hover:underline hover:text-white cursor-pointer transition-all uppercase">Ofertas</button></li>
               </ul>
             </div>
 
             {/* Column 3: Help */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-[#FFC107]">Contacto & Ayuda</h4>
-              <ul className="space-y-2 text-xs font-light text-zinc-400">
-                <li>Soporte al cliente: <span className="text-white">soporte@zapateria.com</span></li>
-                <li>Dirección: <span className="text-white">Av. Principal 123, Ciudad</span></li>
-                <li>Garantía de cambio de talla</li>
-              </ul>
+              <h4 className="text-xs font-black uppercase tracking-widest text-white">Contacto & Ayuda</h4>
+              <p className="text-xs text-white/80 font-light leading-relaxed max-w-xs">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
             </div>
             
           </div>

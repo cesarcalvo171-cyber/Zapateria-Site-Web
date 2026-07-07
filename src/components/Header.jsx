@@ -31,8 +31,8 @@ export default function Header({
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
 
       {/* Main Navbar */}
-      <div className="w-full bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      <div className="w-full bg-[#3CA9E5] border-b border-white/20 transition-colors duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between text-white">
           
           {/* Logo & Mobile Trigger */}
           <div className="flex items-center gap-4">
@@ -51,10 +51,10 @@ export default function Header({
           </div>
 
           {/* Desktop Categories Menu with Dropdowns */}
-          <nav className="hidden lg:flex space-x-6 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+          <nav className="hidden lg:flex space-x-6 text-xs font-bold tracking-wider text-white/80 uppercase">
             <button 
               onClick={() => onSelectCategory('Todos', 'Todas')} 
-              className={`hover:text-[#FFC107] cursor-pointer transition-colors ${selectedCategory === 'Todos' ? 'text-[#FFC107]' : ''}`}
+              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Todos' ? 'text-white underline underline-offset-4' : ''}`}
             >
               Inicio
             </button>
@@ -63,16 +63,16 @@ export default function Header({
             <div className="relative group py-2">
               <button 
                 onClick={() => onSelectCategory('Hombre', 'Todas')} 
-                className={`hover:text-[#FFC107] cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Hombre' ? 'text-[#FFC107]' : ''}`}
+                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Hombre' ? 'text-white underline underline-offset-4' : ''}`}
               >
                 Hombre <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
               </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
+              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
                 {subcategoriesData['Hombre']?.map(sub => (
                   <button
                     key={sub}
                     onClick={() => onSelectCategory('Hombre', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Hombre' && selectedSubcategory === sub ? 'text-[#FFC107] font-bold' : ''}`}
+                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Hombre' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
                   >
                     {sub}
                     {selectedCategory === 'Hombre' && selectedSubcategory === sub && <Check size={10} />}
@@ -85,16 +85,16 @@ export default function Header({
             <div className="relative group py-2">
               <button 
                 onClick={() => onSelectCategory('Mujer', 'Todas')} 
-                className={`hover:text-[#FFC107] cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Mujer' ? 'text-[#FFC107]' : ''}`}
+                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Mujer' ? 'text-white underline underline-offset-4' : ''}`}
               >
                 Mujer <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
               </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
+              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
                 {subcategoriesData['Mujer']?.map(sub => (
                   <button
                     key={sub}
                     onClick={() => onSelectCategory('Mujer', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Mujer' && selectedSubcategory === sub ? 'text-[#FFC107] font-bold' : ''}`}
+                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Mujer' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
                   >
                     {sub}
                     {selectedCategory === 'Mujer' && selectedSubcategory === sub && <Check size={10} />}
@@ -107,16 +107,16 @@ export default function Header({
             <div className="relative group py-2">
               <button 
                 onClick={() => onSelectCategory('Niños', 'Todas')} 
-                className={`hover:text-[#FFC107] cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Niños' ? 'text-[#FFC107]' : ''}`}
+                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Niños' ? 'text-white underline underline-offset-4' : ''}`}
               >
                 Niños <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
               </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
+              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
                 {subcategoriesData['Niños']?.map(sub => (
                   <button
                     key={sub}
                     onClick={() => onSelectCategory('Niños', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Niños' && selectedSubcategory === sub ? 'text-[#FFC107] font-bold' : ''}`}
+                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Niños' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
                   >
                     {sub}
                     {selectedCategory === 'Niños' && selectedSubcategory === sub && <Check size={10} />}
@@ -127,19 +127,19 @@ export default function Header({
 
             <button 
               onClick={() => onSelectCategory('Marcas', 'Todas')} 
-              className={`hover:text-[#FFC107] cursor-pointer transition-colors ${selectedCategory === 'Marcas' ? 'text-[#FFC107]' : ''}`}
+              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Marcas' ? 'text-white underline underline-offset-4' : ''}`}
             >
               Marcas
             </button>
             <button 
               onClick={() => onSelectCategory('Novedades', 'Todas')} 
-              className={`hover:text-[#FFC107] cursor-pointer transition-colors ${selectedCategory === 'Novedades' ? 'text-[#FFC107]' : ''}`}
+              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Novedades' ? 'text-white underline underline-offset-4' : ''}`}
             >
               Novedades
             </button>
             <button 
               onClick={() => onSelectCategory('Ofertas', 'Todas')} 
-              className={`hover:text-[#FFC107] cursor-pointer transition-colors ${selectedCategory === 'Ofertas' ? 'text-[#FFC107]' : ''}`}
+              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Ofertas' ? 'text-white underline underline-offset-4' : ''}`}
             >
               Ofertas
             </button>
@@ -150,24 +150,24 @@ export default function Header({
                   element.scrollIntoView({ behavior: 'smooth' });
                 }
               }} 
-              className="hover:text-[#FFC107] cursor-pointer transition-colors"
+              className="hover:text-white cursor-pointer transition-colors"
             >
               Contacto
             </button>
           </nav>
 
           {/* Actions & Search */}
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-3 sm:gap-5 text-white">
             {/* Search toggler / input */}
             <div className="relative flex items-center">
               {showSearch ? (
-                <div className="flex items-center bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800">
+                <div className="flex items-center bg-white/10 px-3 py-1.5 rounded-full border border-white/20">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Buscar calzado..."
-                    className="bg-transparent text-xs w-28 sm:w-44 focus:outline-none text-white"
+                    className="bg-transparent text-xs w-28 sm:w-44 focus:outline-none text-white placeholder-white/60"
                     autoFocus
                   />
                   <button 
@@ -175,7 +175,7 @@ export default function Header({
                       setSearchQuery('');
                       setShowSearch(false);
                     }}
-                    className="text-zinc-400 hover:text-white"
+                    className="text-white/80 hover:text-white"
                   >
                     <X size={14} />
                   </button>
@@ -183,8 +183,8 @@ export default function Header({
               ) : (
                 <button
                   onClick={() => setShowSearch(true)}
-                  className="text-zinc-300 hover:text-white p-2 rounded-full hover:bg-zinc-900 transition-all cursor-pointer"
-                  aria-label="Search"
+                  className="text-white/85 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all cursor-pointer"
+                  aria-label="Buscar"
                 >
                   <Search size={18} />
                 </button>
@@ -195,8 +195,8 @@ export default function Header({
             {!isAdmin && (
               <button
                 onClick={onOpenFavorites}
-                className="relative text-zinc-400 hover:text-white p-2 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-all cursor-pointer bg-zinc-900/50"
-                aria-label="Favorites"
+                className="relative text-white/85 hover:text-white p-2 rounded-xl border border-white/20 hover:border-white transition-all cursor-pointer bg-white/5"
+                aria-label="Favoritos"
               >
                 <Heart size={16} />
                 {favoritesCount > 0 && (
@@ -211,12 +211,12 @@ export default function Header({
             {!isAdmin && (
               <button
                 onClick={onOpenCart}
-                className="relative text-zinc-400 hover:text-white p-2 rounded-xl border border-zinc-800 hover:border-zinc-600 transition-all cursor-pointer bg-zinc-900/50"
-                aria-label="Cart"
+                className="relative text-white/85 hover:text-white p-2 rounded-xl border border-white/20 hover:border-white transition-all cursor-pointer bg-white/5"
+                aria-label="Carrito"
               >
                 <ShoppingBag size={16} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#FFC107] text-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold transition-colors">
+                  <span className="absolute -top-1 -right-1 bg-white text-[#3CA9E5] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black transition-colors shadow">
                     {cartCount}
                   </span>
                 )}
