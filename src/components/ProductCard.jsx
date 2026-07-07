@@ -60,6 +60,7 @@ export default function ProductCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+      onClick={() => onOpenDetail(product)}
       className={`group relative flex flex-col w-full rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer ${isOut ? 'opacity-70' : ''}`}
       style={{ background: 'linear-gradient(145deg, #3BB8F5 0%, #2196E0 100%)' }}
     >
