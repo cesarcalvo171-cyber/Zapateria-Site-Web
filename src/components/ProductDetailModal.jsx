@@ -258,7 +258,7 @@ export default function ProductDetailModal({
               )}
 
               {/* Details list */}
-              {details && details.length > 0 && (
+              {details && Array.isArray(details) && details.length > 0 && (
                 <div className="space-y-1.5 pt-2 border-t border-zinc-100">
                   <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase block">
                     Características
