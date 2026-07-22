@@ -50,102 +50,28 @@ export default function Header({
             </a>
           </div>
 
-          {/* Desktop Categories Menu with Dropdowns */}
-          <nav className="hidden lg:flex space-x-6 text-xs font-bold tracking-wider text-white/80 uppercase">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex space-x-8 text-xs font-bold tracking-wider text-white/90 uppercase">
             <button 
-              onClick={() => onSelectCategory('Todos', 'Todas')} 
-              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Todos' ? 'text-white underline underline-offset-4' : ''}`}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }} 
+              className="hover:text-white cursor-pointer transition-colors"
             >
               Inicio
             </button>
-
-            {/* Dropdown Hombre */}
-            <div className="relative group py-2">
-              <button 
-                onClick={() => onSelectCategory('Hombre', 'Todas')} 
-                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Hombre' ? 'text-white underline underline-offset-4' : ''}`}
-              >
-                Hombre <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
-              </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
-                {subcategoriesData['Hombre']?.map(sub => (
-                  <button
-                    key={sub}
-                    onClick={() => onSelectCategory('Hombre', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Hombre' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
-                  >
-                    {sub}
-                    {selectedCategory === 'Hombre' && selectedSubcategory === sub && <Check size={10} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Dropdown Mujer */}
-            <div className="relative group py-2">
-              <button 
-                onClick={() => onSelectCategory('Mujer', 'Todas')} 
-                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Mujer' ? 'text-white underline underline-offset-4' : ''}`}
-              >
-                Mujer <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
-              </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
-                {subcategoriesData['Mujer']?.map(sub => (
-                  <button
-                    key={sub}
-                    onClick={() => onSelectCategory('Mujer', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Mujer' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
-                  >
-                    {sub}
-                    {selectedCategory === 'Mujer' && selectedSubcategory === sub && <Check size={10} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Dropdown Niños */}
-            <div className="relative group py-2">
-              <button 
-                onClick={() => onSelectCategory('Niños', 'Todas')} 
-                className={`hover:text-white cursor-pointer transition-colors flex items-center gap-1 ${selectedCategory === 'Niños' ? 'text-white underline underline-offset-4' : ''}`}
-              >
-                Niños <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
-              </button>
-              <div className="absolute left-0 top-full mt-0 w-48 bg-[#3CA9E5] border border-white/20 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-2">
-                {subcategoriesData['Niños']?.map(sub => (
-                  <button
-                    key={sub}
-                    onClick={() => onSelectCategory('Niños', sub)}
-                    className={`w-full text-left px-4 py-2 text-[10px] text-white/85 hover:text-white hover:bg-white/10 transition-colors uppercase flex justify-between items-center ${selectedCategory === 'Niños' && selectedSubcategory === sub ? 'text-white font-black underline' : ''}`}
-                  >
-                    {sub}
-                    {selectedCategory === 'Niños' && selectedSubcategory === sub && <Check size={10} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <button 
-              onClick={() => onSelectCategory('Marcas', 'Todas')} 
-              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Marcas' ? 'text-white underline underline-offset-4' : ''}`}
+              onClick={() => {
+                const element = document.getElementById('catalog');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }} 
+              className="hover:text-white cursor-pointer transition-colors"
             >
-              Marcas
+              Catálogo
             </button>
             <button 
-              onClick={() => onSelectCategory('Novedades', 'Todas')} 
-              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Novedades' ? 'text-white underline underline-offset-4' : ''}`}
-            >
-              Novedades
-            </button>
-            <button 
-              onClick={() => onSelectCategory('Ofertas', 'Todas')} 
-              className={`hover:text-white cursor-pointer transition-colors ${selectedCategory === 'Ofertas' ? 'text-white underline underline-offset-4' : ''}`}
-            >
-              Ofertas
-            </button>
-           {
-            /*
-             <button 
               onClick={() => {
                 const element = document.getElementById('footer');
                 if (element) {
@@ -156,8 +82,6 @@ export default function Header({
             >
               Contacto
             </button>
-             */
-           }
           </nav>
 
           {/* Actions & Search */}

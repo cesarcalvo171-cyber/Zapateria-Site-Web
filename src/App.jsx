@@ -9,7 +9,7 @@ import CheckoutModal from './components/CheckoutModal';
 import AdminPanel from './components/AdminPanel';
 import { supabase } from './supabaseClient';
 import { categories, subcategories } from './data/products';
-import { SlidersHorizontal, Heart, X, Sparkles } from 'lucide-react';
+import { SlidersHorizontal, Heart, X, Sparkles, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function App() {
@@ -437,19 +437,56 @@ export default function App() {
       <div className="w-full bg-[#FAF9F6] text-zinc-900 py-16 border-t border-zinc-200">
         <main id="catalog" className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Título de sección */}
-          <div className="flex items-center gap-3 mb-8">
+          {/* Título de sección Centrado */}
+          <div className="text-center mb-8 space-y-4">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Explora</p>
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#3CA9E5]">Explora Nuestro Catálogo</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-widest text-zinc-950 uppercase">NUESTRA COLECCIÓN</h2>
+            </div>
+
+            {/* Buscador + Ordenar Integrados */}
+            <div className="max-w-2xl w-full mx-auto flex flex-col sm:flex-row items-center gap-3 pt-1">
+              {/* Buscador */}
+              <div className="relative flex-1 w-full">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por estilo, modelo o marca..."
+                  className="w-full bg-white text-xs border border-zinc-250 focus:border-[#3CA9E5] pl-10 pr-9 py-2.5 rounded-lg shadow-2xs focus:outline-none transition-all text-zinc-900 placeholder-zinc-400 font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700 text-xs font-bold cursor-pointer"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              {/* Ordenar Selector */}
+              <div className="flex items-center gap-2 bg-white border border-zinc-250 rounded-lg px-3 py-2 shadow-2xs text-xs w-full sm:w-auto justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 whitespace-nowrap">Ordenar:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent text-xs font-semibold text-zinc-800 focus:outline-none cursor-pointer pr-1"
+                >
+                  <option value="default">Recientes</option>
+                  <option value="price-asc">Precio: Menor a Mayor</option>
+                  <option value="price-desc">Precio: Mayor a Menor</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* === SISTEMA DE FILTROS POR CATEGORÍA Y SUBCATEGORÍA === */}
+          {/* === SISTEMA DE FILTROS CENTRADOS Y MENOS REDONDEADOS === */}
           <div className="w-full mb-10 space-y-4">
 
             {/* Fila 1: Categorías principales */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {['Todos', 'Hombre', 'Mujer', 'Niños', 'Novedades', 'Ofertas'].map(tab => (
                 <button
                   key={tab}
@@ -458,78 +495,67 @@ export default function App() {
                     setSelectedSubcategory('Todas');
                     setShowOnlyFavorites(false);
                   }}
-                  className={`py-2 px-5 text-xs font-bold border-2 transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-full ${
+                  className={`py-2 px-4 text-xs font-bold border transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-lg shadow-2xs ${
                     selectedCategory === tab
-                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-md'
-                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-sm'
+                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                   }`}
                 >
                   {tab}
                 </button>
               ))}
-
-              {/* Separador + Ordenar */}
-              <div className="ml-auto flex items-center gap-2">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Ordenar:</span>
-                {[
-                  { value: 'default', label: 'Recientes' },
-                  { value: 'price-asc', label: '$ Menor' },
-                  { value: 'price-desc', label: '$ Mayor' },
-                ].map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setSortBy(opt.value)}
-                    className={`py-1.5 px-3 text-[10px] font-semibold border rounded-full cursor-pointer transition-all ${
-                      sortBy === opt.value
-                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                        : 'border-zinc-200 text-zinc-500 hover:border-[#3CA9E5] hover:text-[#3CA9E5] bg-white'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {/* Fila 2: Subcategorías (aparece solo si la categoría tiene subcategorías) */}
-            {subcategories[selectedCategory] && (
-              <div className="flex flex-wrap gap-2 pt-1 border-t border-zinc-200">
-                <button
-                  onClick={() => setSelectedSubcategory('Todas')}
-                  className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
-                    selectedSubcategory === 'Todas'
-                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
-                  }`}
-                >
-                  Todas
-                </button>
-                {subcategories[selectedCategory].map(sub => (
+            {/* Fila 2: Subcategorías / Tipo de Calzado (Dinámico) */}
+            {(() => {
+              const currentSubcats = subcategories[selectedCategory] || (
+                selectedCategory === 'Todos' 
+                  ? Array.from(new Set(Object.values(subcategories).flat())) 
+                  : null
+              );
+
+              if (!currentSubcats || currentSubcats.length === 0) return null;
+
+              return (
+                <div className="flex flex-wrap justify-center items-center gap-2 pt-2 border-t border-zinc-200/80">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mr-1">Estilo:</span>
                   <button
-                    key={sub}
-                    onClick={() => setSelectedSubcategory(sub)}
-                    className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
-                      selectedSubcategory === sub
+                    onClick={() => setSelectedSubcategory('Todas')}
+                    className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
+                      selectedSubcategory === 'Todas'
                         ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                        : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                        : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                     }`}
                   >
-                    {sub}
+                    Todos
                   </button>
-                ))}
-              </div>
-            )}
+                  {currentSubcats.map(sub => (
+                    <button
+                      key={sub}
+                      onClick={() => setSelectedSubcategory(sub)}
+                      className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
+                        selectedSubcategory === sub
+                          ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                          : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
 
             {/* Fila 3: Filtro por Marca */}
             {brandsList.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-200">
+              <div className="flex flex-wrap justify-center items-center gap-2 pt-2 border-t border-zinc-200/80">
                 <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mr-1">Marca:</span>
                 <button
                   onClick={() => setSelectedBrand('Todas')}
-                  className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                  className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
                     selectedBrand === 'Todas'
                       ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                   }`}
                 >
                   Todas
@@ -538,10 +564,10 @@ export default function App() {
                   <button
                     key={b.id || b.name}
                     onClick={() => setSelectedBrand(b.name)}
-                    className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                    className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
                       selectedBrand === b.name
                         ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                        : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                        : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                     }`}
                   >
                     {b.name}
@@ -550,15 +576,18 @@ export default function App() {
               </div>
             )}
 
-            {/* Indicador activo */}
-            {(selectedCategory !== 'Todos' || selectedSubcategory !== 'Todas') && (
-              <div className="flex items-center gap-2 text-[10px] text-zinc-500">
-                <span>Mostrando:</span>
-                <span className="font-bold text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded">
-                  {selectedCategory}{selectedSubcategory !== 'Todas' ? ` › ${selectedSubcategory}` : ''}
+            {/* Indicador activo de filtros */}
+            {(selectedCategory !== 'Todos' || selectedSubcategory !== 'Todas' || selectedBrand !== 'Todas' || searchQuery !== '') && (
+              <div className="flex items-center justify-center gap-2 text-[10px] text-zinc-500 pt-2">
+                <span>Filtros activos:</span>
+                <span className="font-bold text-zinc-900 bg-white border border-zinc-200 px-2.5 py-1 rounded-md shadow-2xs">
+                  {selectedCategory !== 'Todos' ? selectedCategory : 'Colección'}
+                  {selectedSubcategory !== 'Todas' ? ` › ${selectedSubcategory}` : ''}
+                  {selectedBrand !== 'Todas' ? ` • Marca: ${selectedBrand}` : ''}
+                  {searchQuery ? ` • "${searchQuery}"` : ''}
                 </span>
                 <button
-                  onClick={() => { setSelectedCategory('Todos'); setSelectedSubcategory('Todas'); }}
+                  onClick={handleResetFilters}
                   className="text-[#3CA9E5] font-bold hover:underline cursor-pointer ml-1"
                 >
                   × Limpiar
