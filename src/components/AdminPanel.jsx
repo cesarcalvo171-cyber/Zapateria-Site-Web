@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as yup from 'yup';
 import { supabase } from '../supabaseClient';
 import { X, Plus, Trash2, LogIn, UserPlus, LogOut, Check, ChevronLeft, Image as ImageIcon, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +8,38 @@ import { subcategories as SUBCATEGORIES } from '../data/products';
 
 const CATEGORIES = ['Hombre', 'Mujer', 'Niños', 'Marcas', 'Novedades', 'Ofertas', 'Otros'];
 const AVAILABLE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', 'Única'];
+
+const productSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .min(3, 'El nombre del calzado debe tener al menos 3 caracteres')
+    .required('El nombre del calzado es obligatorio'),
+  price: yup
+    .number()
+    .typeError('Ingresa un precio de venta numérico válido')
+    .positive('El precio de venta debe ser mayor a 0')
+    .required('El precio de venta es obligatorio'),
+  costPrice: yup
+    .number()
+    .typeError('Ingresa un costo al proveedor numérico válido')
+    .min(0, 'El costo al proveedor no puede ser negativo')
+    .required('El costo al proveedor es obligatorio'),
+  description: yup
+    .string()
+    .trim()
+    .min(10, 'La descripción debe tener al menos 10 caracteres')
+    .required('La descripción del calzado es obligatoria'),
+  variants: yup
+    .array()
+    .min(1, 'Debes agregar al menos una variante de foto')
+    .of(
+      yup.object().shape({
+        hasImage: yup.boolean().oneOf([true], 'Esta variante requiere una foto o imagen seleccionada'),
+        hasSizes: yup.boolean().oneOf([true], 'Esta variante debe incluir al menos una talla disponible')
+      })
+    )
+});
 
 export default function AdminPanel({ 
   onClose, 
@@ -58,6 +91,39 @@ export default function AdminPanel({
   const [importImageFiles, setImportImageFiles] = useState([]);
   const [importLoading, setImportLoading] = useState(false);
   const [importProgress, setImportProgress] = useState('');
+
+  // Form Validation errors state
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateProductForm = async () => {
+    try {
+      setFormErrors({});
+      const dataToValidate = {
+        name: name ? name.trim() : '',
+        price: price !== '' ? Number(price) : NaN,
+        costPrice: costPrice !== '' ? Number(costPrice) : NaN,
+        description: description ? description.trim() : '',
+        variants: variants.map(v => ({
+          hasImage: Boolean(v.file || v.previewUrl),
+          hasSizes: Boolean(v.sizes && v.sizes.length > 0)
+        }))
+      };
+
+      await productSchema.validate(dataToValidate, { abortEarly: false });
+      return true;
+    } catch (err) {
+      if (err.inner) {
+        const errors = {};
+        err.inner.forEach(e => {
+          if (!errors[e.path]) {
+            errors[e.path] = e.message;
+          }
+        });
+        setFormErrors(errors);
+      }
+      return false;
+    }
+  };
 
   // Check auth session
   useEffect(() => {
@@ -580,17 +646,9 @@ export default function AdminPanel({
   const handleSubmitProduct = async (e) => {
     e.preventDefault();
 
-    // Validations
-    if (!name.trim() || !price || parseFloat(price) <= 0) {
-      alert('Por favor ingresa un nombre válido y un precio mayor a 0.');
-      return;
-    }
-
-    const invalidVariant = variants.some(v => !v.file || v.sizes.length === 0);
-    if (invalidVariant) {
-      alert('Cada variante debe tener una Imagen seleccionada y al menos un Tamaño disponible.');
-      return;
-    }
+    // Yup Form Validations
+    const isValid = await validateProductForm();
+    if (!isValid) return;
 
     setSubmitLoading(true);
 
@@ -639,26 +697,27 @@ export default function AdminPanel({
           .from('product-images')
           .getPublicUrl(filePath);
 
-        // Insert variant row linked to product
+        // Insert variant
         const { error: variantError } = await supabase
           .from('product_variants')
           .insert({
             product_id: productId,
-            color_name: variant.color_name.trim(),
+            color_name: variant.color_name,
             color_hex: variant.color_hex,
             image_url: publicUrl,
             sizes: variant.sizes,
-            stock_by_size: variant.stock_by_size || {},
-            price_by_size: variant.price_by_size || {},
-            original_price_by_size: variant.original_price_by_size || {},
-            cost_price_by_size: variant.cost_price_by_size || {}
+            stock_by_size: variant.stock_by_size,
+            price_by_size: variant.price_by_size,
+            cost_price_by_size: variant.cost_price_by_size,
+            original_price_by_size: variant.original_price_by_size
           });
 
         if (variantError) throw variantError;
       }
 
-      // Success cleanup
-      alert('¡Producto creado con éxito!');
+      alert('¡Producto creado exitosamente!');
+
+      // Reset form
       setName('');
       setDescription('');
       setPrice('');
@@ -668,6 +727,7 @@ export default function AdminPanel({
       setSubcategory('');
       setDetailsInput('');
       setIsFeatured(false);
+      setFormErrors({});
       
       // Clean previews
       variants.forEach(v => {
@@ -691,17 +751,9 @@ export default function AdminPanel({
 
     if (!productToEdit) return;
 
-    // Validations
-    if (!name.trim() || !price || parseFloat(price) <= 0) {
-      alert('Por favor ingresa un nombre válido y un precio mayor a 0.');
-      return;
-    }
-
-    const invalidVariant = variants.some(v => (!v.file && !v.previewUrl) || v.sizes.length === 0);
-    if (invalidVariant) {
-      alert('Cada variante debe tener una Imagen seleccionada y al menos un Tamaño disponible.');
-      return;
-    }
+    // Yup Form Validations
+    const isValid = await validateProductForm();
+    if (!isValid) return;
 
     setSubmitLoading(true);
 
@@ -1036,12 +1088,16 @@ export default function AdminPanel({
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Nombre del Calzado</label>
                   <input
                     type="text"
-                    required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Ej: Air Max Speed Turf Blue"
-                    className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
+                    className={`w-full text-xs bg-zinc-50 dark:bg-zinc-950 border px-3 py-2.5 focus:outline-none text-zinc-900 dark:text-white ${
+                      formErrors.name ? 'border-rose-500 focus:border-rose-600' : 'border-zinc-300 dark:border-zinc-850 focus:border-black dark:focus:border-white'
+                    }`}
                   />
+                  {formErrors.name && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors.name}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -1090,12 +1146,16 @@ export default function AdminPanel({
                   <input
                     type="number"
                     step="0.01"
-                    required
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="79.99"
-                    className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
+                    className={`w-full text-xs bg-zinc-50 dark:bg-zinc-950 border px-3 py-2.5 focus:outline-none text-zinc-900 dark:text-white ${
+                      formErrors.price ? 'border-rose-500 focus:border-rose-600' : 'border-zinc-300 dark:border-zinc-850 focus:border-black dark:focus:border-white'
+                    }`}
                   />
+                  {formErrors.price && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors.price}</p>
+                  )}
                 </div>
 
                 <div>
@@ -1103,12 +1163,16 @@ export default function AdminPanel({
                   <input
                     type="number"
                     step="0.01"
-                    required
                     value={costPrice}
                     onChange={(e) => setCostPrice(e.target.value)}
                     placeholder="25.00"
-                    className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white"
+                    className={`w-full text-xs bg-zinc-50 dark:bg-zinc-950 border px-3 py-2.5 focus:outline-none text-zinc-900 dark:text-white ${
+                      formErrors.costPrice ? 'border-rose-500 focus:border-rose-600' : 'border-zinc-300 dark:border-zinc-850 focus:border-black dark:focus:border-white'
+                    }`}
                   />
+                  {formErrors.costPrice && (
+                    <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors.costPrice}</p>
+                  )}
                 </div>
 
                 <div>
@@ -1145,8 +1209,13 @@ export default function AdminPanel({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ej: Zapatillas de alto rendimiento con suela de goma antideslizante, upper de malla transpirable y amortiguación reactiva para máxima comodidad durante todo el día..."
-                  className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-850 px-3 py-2.5 focus:outline-none focus:border-black dark:focus:border-white text-zinc-900 dark:text-white resize-none"
+                  className={`w-full text-xs bg-zinc-50 dark:bg-zinc-950 border px-3 py-2.5 focus:outline-none text-zinc-900 dark:text-white resize-none ${
+                    formErrors.description ? 'border-rose-500 focus:border-rose-600' : 'border-zinc-300 dark:border-zinc-850 focus:border-black dark:focus:border-white'
+                  }`}
                 />
+                {formErrors.description && (
+                  <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors.description}</p>
+                )}
               </div>
 
               {/* Details & Material */}
@@ -1165,7 +1234,12 @@ export default function AdminPanel({
               {/* VARIANTS BUILDER */}
               <div className="space-y-4 border-t border-zinc-200 dark:border-zinc-850 pt-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Variantes de Imagen</h3>
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Variantes de Imagen</h3>
+                    {formErrors.variants && (
+                      <p className="text-[10px] text-rose-500 font-bold mt-0.5">{formErrors.variants}</p>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={handleAddVariant}
@@ -1210,7 +1284,6 @@ export default function AdminPanel({
                               <input
                                 type="file"
                                 accept="image/*"
-                                required={!variant.file && !variant.previewUrl}
                                 onChange={(e) => handleVariantFileChange(vIdx, e.target.files[0])}
                                 className="hidden"
                               />
@@ -1221,6 +1294,9 @@ export default function AdminPanel({
                               </div>
                             )}
                           </div>
+                          {formErrors[`variants[${vIdx}].hasImage`] && (
+                            <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors[`variants[${vIdx}].hasImage`]}</p>
+                          )}
                         </div>
                       </div>
 
@@ -1246,6 +1322,9 @@ export default function AdminPanel({
                             );
                           })}
                         </div>
+                        {formErrors[`variants[${vIdx}].hasSizes`] && (
+                          <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors[`variants[${vIdx}].hasSizes`]}</p>
+                        )}
 
                         {/* Active sizes details inputs */}
                         {variant.sizes && variant.sizes.length > 0 && (
