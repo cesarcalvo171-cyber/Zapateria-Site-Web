@@ -143,7 +143,9 @@ export default function Header({
             >
               Ofertas
             </button>
-            <button 
+           {
+            /*
+             <button 
               onClick={() => {
                 const element = document.getElementById('footer');
                 if (element) {
@@ -154,6 +156,8 @@ export default function Header({
             >
               Contacto
             </button>
+             */
+           }
           </nav>
 
           {/* Actions & Search */}

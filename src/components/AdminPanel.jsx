@@ -25,6 +25,10 @@ const productSchema = yup.object().shape({
     .typeError('Ingresa un costo al proveedor numérico válido')
     .min(0, 'El costo al proveedor no puede ser negativo')
     .required('El costo al proveedor es obligatorio'),
+  brand: yup
+    .string()
+    .trim()
+    .required('La marca del calzado es obligatoria'),
   description: yup
     .string()
     .trim()
@@ -73,6 +77,12 @@ export default function AdminPanel({
   const [costPrice, setCostPrice] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [subcategory, setSubcategory] = useState('');
+  const [brand, setBrand] = useState('');
+  const [brandsList, setBrandsList] = useState([]);
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [newBrandName, setNewBrandName] = useState('');
+  const [brandSubmitting, setBrandSubmitting] = useState(false);
+
   const [detailsInput, setDetailsInput] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   
@@ -95,6 +105,46 @@ export default function AdminPanel({
   // Form Validation errors state
   const [formErrors, setFormErrors] = useState({});
 
+  const fetchBrands = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('brands')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      setBrandsList(data || []);
+      if (data && data.length > 0 && !brand) {
+        setBrand(data[0].name);
+      }
+    } catch (err) {
+      console.error('Error al cargar marcas:', err.message);
+    }
+  };
+
+  const handleCreateBrand = async (e) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    setBrandSubmitting(true);
+    try {
+      const trimmed = newBrandName.trim();
+      const { data, error } = await supabase
+        .from('brands')
+        .insert({ name: trimmed })
+        .select()
+        .single();
+      if (error) throw error;
+      alert('Marca creada con éxito');
+      setBrandsList(prev => [...prev.filter(b => b.name !== trimmed), data].sort((a, b) => a.name.localeCompare(b.name)));
+      setBrand(trimmed);
+      setNewBrandName('');
+      setIsBrandModalOpen(false);
+    } catch (err) {
+      alert('Error al crear marca: ' + err.message);
+    } finally {
+      setBrandSubmitting(false);
+    }
+  };
+
   const validateProductForm = async () => {
     try {
       setFormErrors({});
@@ -102,6 +152,7 @@ export default function AdminPanel({
         name: name ? name.trim() : '',
         price: price !== '' ? Number(price) : NaN,
         costPrice: costPrice !== '' ? Number(costPrice) : NaN,
+        brand: brand ? brand.trim() : '',
         description: description ? description.trim() : '',
         variants: variants.map(v => ({
           hasImage: Boolean(v.file || v.previewUrl),
@@ -138,10 +189,11 @@ export default function AdminPanel({
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch products when logged in
+  // Fetch products and brands when logged in
   useEffect(() => {
     if (session) {
       fetchProducts();
+      fetchBrands();
     }
   }, [session]);
 
@@ -155,6 +207,7 @@ export default function AdminPanel({
       setCostPrice(productToEdit.cost_price || '');
       setCategory(productToEdit.category || CATEGORIES[0]);
       setSubcategory(productToEdit.subcategory || '');
+      setBrand(productToEdit.brand || '');
       setDetailsInput(productToEdit.details ? productToEdit.details.join('\n') : '');
       setIsFeatured(productToEdit.is_featured || false);
       
@@ -669,6 +722,7 @@ export default function AdminPanel({
           cost_price: productCostPrice,
           category,
           subcategory,
+          brand: brand.trim(),
           details: detailsArray,
           is_featured: isFeatured
         })
@@ -774,6 +828,7 @@ export default function AdminPanel({
           cost_price: productCostPrice,
           category,
           subcategory,
+          brand: brand.trim(),
           details: detailsArray,
           is_featured: isFeatured
         })
@@ -1100,7 +1155,7 @@ export default function AdminPanel({
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Categoría</label>
                     <select
@@ -1135,6 +1190,34 @@ export default function AdminPanel({
                         </>
                       )}
                     </select>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Marca</label>
+                      <button
+                        type="button"
+                        onClick={() => setIsBrandModalOpen(true)}
+                        className="text-[9px] font-bold uppercase text-emerald-600 hover:underline cursor-pointer"
+                      >
+                        + Nueva
+                      </button>
+                    </div>
+                    <select
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      className={`w-full text-xs bg-zinc-50 dark:bg-zinc-950 border px-3 py-2.5 focus:outline-none text-zinc-900 dark:text-white ${
+                        formErrors.brand ? 'border-rose-500 focus:border-rose-600' : 'border-zinc-300 dark:border-zinc-850 focus:border-black dark:focus:border-white'
+                      }`}
+                    >
+                      {brandsList.length === 0 && <option value="">Crear Marca...</option>}
+                      {brandsList.map(b => (
+                        <option key={b.id || b.name} value={b.name}>{b.name}</option>
+                      ))}
+                    </select>
+                    {formErrors.brand && (
+                      <p className="text-[10px] text-rose-500 font-bold mt-1">{formErrors.brand}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1586,6 +1669,53 @@ export default function AdminPanel({
           <SalesAdminTab />
         </div>
       ) : null}
+
+      {/* Modal para Crear Nueva Marca */}
+      {isBrandModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-900 dark:text-white">Nueva Marca</h3>
+              <button
+                type="button"
+                onClick={() => setIsBrandModalOpen(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-white cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateBrand} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">Nombre de la Marca</label>
+                <input
+                  type="text"
+                  required
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  placeholder="Ej: Nike, Adidas, Puma..."
+                  className="w-full text-xs bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 px-3 py-2.5 text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsBrandModalOpen(false)}
+                  className="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-zinc-700 dark:hover:text-white uppercase cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={brandSubmitting}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase rounded-lg shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {brandSubmitting ? 'Guardando...' : 'Guardar Marca'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -56,6 +56,8 @@ export default function App() {
   // Filters and Sorting
   const [selectedSize, setSelectedSize] = useState('Todas');
   const [selectedColor, setSelectedColor] = useState('Todos');
+  const [selectedBrand, setSelectedBrand] = useState('Todas');
+  const [brandsList, setBrandsList] = useState([]);
   const [sortBy, setSortBy] = useState('default');
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
 
@@ -77,6 +79,20 @@ export default function App() {
       setProductsList([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch brands from Supabase
+  const fetchBrands = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('brands')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      setBrandsList(data || []);
+    } catch (err) {
+      console.error('Error fetching brands:', err.message);
     }
   };
 
@@ -102,6 +118,7 @@ export default function App() {
 
   useEffect(() => {
     fetchProducts();
+    fetchBrands();
     fetchSettings();
   }, [isAdminOpen]); // Refetch products & settings when admin panel closes
 
@@ -276,6 +293,7 @@ export default function App() {
     }
 
     const matchesSubcategory = selectedSubcategory === 'Todas' || product.subcategory === selectedSubcategory;
+    const matchesBrand = selectedBrand === 'Todas' || (product.brand && product.brand.toLowerCase() === selectedBrand.toLowerCase());
     const matchesFavorites = !showOnlyFavorites || favorites.includes(product.id);
 
     // Matches size in any of the variants
@@ -292,7 +310,7 @@ export default function App() {
         : (product.colors && product.colors.some(c => c.name === selectedColor))
     );
 
-    return matchesSearch && matchesCategory && matchesSubcategory && matchesFavorites && matchesSize && matchesColor;
+    return matchesSearch && matchesCategory && matchesSubcategory && matchesBrand && matchesFavorites && matchesSize && matchesColor;
   }).sort((a, b) => {
     if (sortBy === 'price-asc') return a.price - b.price;
     if (sortBy === 'price-desc') return b.price - a.price;
@@ -303,6 +321,7 @@ export default function App() {
   const handleResetFilters = () => {
     setSelectedSize('Todas');
     setSelectedColor('Todos');
+    setSelectedBrand('Todas');
     setSortBy('default');
     setSearchQuery('');
     setSelectedCategory('Todos');
@@ -496,6 +515,36 @@ export default function App() {
                     }`}
                   >
                     {sub}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Fila 3: Filtro por Marca */}
+            {brandsList.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-200">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mr-1">Marca:</span>
+                <button
+                  onClick={() => setSelectedBrand('Todas')}
+                  className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                    selectedBrand === 'Todas'
+                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                      : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                  }`}
+                >
+                  Todas
+                </button>
+                {brandsList.map(b => (
+                  <button
+                    key={b.id || b.name}
+                    onClick={() => setSelectedBrand(b.name)}
+                    className={`py-1.5 px-4 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-md ${
+                      selectedBrand === b.name
+                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                        : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                    }`}
+                  >
+                    {b.name}
                   </button>
                 ))}
               </div>
