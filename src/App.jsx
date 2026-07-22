@@ -482,106 +482,133 @@ export default function App() {
             </div>
           </div>
 
-          {/* === SISTEMA DE FILTROS CENTRADOS Y MENOS REDONDEADOS === */}
-          <div className="w-full mb-10 space-y-4">
+          {/* === SISTEMA DE FILTROS PASO A PASO (STEP-BY-STEP) === */}
+          <div className="w-full mb-10 space-y-4 max-w-4xl mx-auto">
 
-            {/* Fila 1: Categorías principales */}
-            <div className="flex flex-wrap justify-center gap-2">
-              {['Todos', 'Hombre', 'Mujer', 'Niños', 'Novedades', 'Ofertas'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setSelectedCategory(tab);
-                    setSelectedSubcategory('Todas');
-                    setShowOnlyFavorites(false);
-                  }}
-                  className={`py-2 px-4 text-xs font-bold border transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-lg shadow-2xs ${
-                    selectedCategory === tab
-                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-sm'
-                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Fila 2: Subcategorías / Tipo de Calzado (Dinámico) */}
-            {(() => {
-              const currentSubcats = subcategories[selectedCategory] || (
-                selectedCategory === 'Todos' 
-                  ? Array.from(new Set(Object.values(subcategories).flat())) 
-                  : null
-              );
-
-              if (!currentSubcats || currentSubcats.length === 0) return null;
-
-              return (
-                <div className="flex flex-wrap justify-center items-center gap-2 pt-2 border-t border-zinc-200/80">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mr-1">Estilo:</span>
+            {/* PASO 1: Categorías principales */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-0.5 rounded">Paso 1</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Categoría</span>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['Todos', 'Hombre', 'Mujer', 'Niños', 'Novedades', 'Ofertas'].map(tab => (
                   <button
-                    onClick={() => setSelectedSubcategory('Todas')}
-                    className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
-                      selectedSubcategory === 'Todas'
-                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                    key={tab}
+                    onClick={() => {
+                      setSelectedCategory(tab);
+                      setSelectedSubcategory('Todas');
+                      setSelectedBrand('Todas');
+                      setShowOnlyFavorites(false);
+                    }}
+                    className={`py-2 px-4 text-xs font-bold border transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-lg shadow-2xs ${
+                      selectedCategory === tab
+                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-sm scale-105'
                         : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                     }`}
                   >
-                    Todos
+                    {tab}
                   </button>
-                  {currentSubcats.map(sub => (
+                ))}
+              </div>
+            </div>
+
+            {/* PASO 2: Subcategorías / Tipo de Calzado (Aparece al seleccionar Categoría diferente de 'Todos') */}
+            <AnimatePresence>
+              {selectedCategory !== 'Todos' && subcategories[selectedCategory] && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-2 pt-3 border-t border-zinc-200/80 overflow-hidden"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-[#3CA9E5]/20 text-[#3CA9E5] px-2 py-0.5 rounded">Paso 2</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Tipo de Calzado / Estilo</span>
+                  </div>
+                  <div className="flex flex-wrap justify-center items-center gap-2">
                     <button
-                      key={sub}
-                      onClick={() => setSelectedSubcategory(sub)}
+                      onClick={() => {
+                        setSelectedSubcategory('Todas');
+                      }}
                       className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
-                        selectedSubcategory === sub
+                        selectedSubcategory === 'Todas'
                           ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
                           : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
                       }`}
                     >
-                      {sub}
+                      Todos
                     </button>
-                  ))}
-                </div>
-              );
-            })()}
+                    {subcategories[selectedCategory].map(sub => (
+                      <button
+                        key={sub}
+                        onClick={() => {
+                          setSelectedSubcategory(sub);
+                        }}
+                        className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
+                          selectedSubcategory === sub
+                            ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-xs scale-105'
+                            : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                        }`}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Fila 3: Filtro por Marca */}
-            {brandsList.length > 0 && (
-              <div className="flex flex-wrap justify-center items-center gap-2 pt-2 border-t border-zinc-200/80">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400 mr-1">Marca:</span>
-                <button
-                  onClick={() => setSelectedBrand('Todas')}
-                  className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
-                    selectedBrand === 'Todas'
-                      ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
-                  }`}
+            {/* PASO 3: Marcas (Aparece al seleccionar Subcategoría diferente de 'Todas' o cuando hay subcategorías) */}
+            <AnimatePresence>
+              {selectedCategory !== 'Todos' && selectedSubcategory !== 'Todas' && brandsList.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-2 pt-3 border-t border-zinc-200/80 overflow-hidden"
                 >
-                  Todas
-                </button>
-                {brandsList.map(b => (
-                  <button
-                    key={b.id || b.name}
-                    onClick={() => setSelectedBrand(b.name)}
-                    className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
-                      selectedBrand === b.name
-                        ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
-                        : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
-                    }`}
-                  >
-                    {b.name}
-                  </button>
-                ))}
-              </div>
-            )}
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-600 px-2 py-0.5 rounded">Paso 3</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Marca</span>
+                  </div>
+                  <div className="flex flex-wrap justify-center items-center gap-2">
+                    <button
+                      onClick={() => setSelectedBrand('Todas')}
+                      className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
+                        selectedBrand === 'Todas'
+                          ? 'bg-[#3CA9E5] text-white border-[#3CA9E5]'
+                          : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                      }`}
+                    >
+                      Todas
+                    </button>
+                    {brandsList.map(b => (
+                      <button
+                        key={b.id || b.name}
+                        onClick={() => setSelectedBrand(b.name)}
+                        className={`py-1.5 px-3.5 text-[10px] font-bold border transition-all cursor-pointer uppercase tracking-wider rounded-lg ${
+                          selectedBrand === b.name
+                            ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-xs scale-105'
+                            : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
+                        }`}
+                      >
+                        {b.name}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Indicador activo de filtros */}
             {(selectedCategory !== 'Todos' || selectedSubcategory !== 'Todas' || selectedBrand !== 'Todas' || searchQuery !== '') && (
-              <div className="flex items-center justify-center gap-2 text-[10px] text-zinc-500 pt-2">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-zinc-500 pt-3">
                 <span>Filtros activos:</span>
                 <span className="font-bold text-zinc-900 bg-white border border-zinc-200 px-2.5 py-1 rounded-md shadow-2xs">
-                  {selectedCategory !== 'Todos' ? selectedCategory : 'Colección'}
+                  {selectedCategory}
                   {selectedSubcategory !== 'Todas' ? ` › ${selectedSubcategory}` : ''}
                   {selectedBrand !== 'Todas' ? ` • Marca: ${selectedBrand}` : ''}
                   {searchQuery ? ` • "${searchQuery}"` : ''}
@@ -590,7 +617,7 @@ export default function App() {
                   onClick={handleResetFilters}
                   className="text-[#3CA9E5] font-bold hover:underline cursor-pointer ml-1"
                 >
-                  × Limpiar
+                  × Reiniciar Filtros
                 </button>
               </div>
             )}
