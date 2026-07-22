@@ -1311,10 +1311,10 @@ export default function AdminPanel({
                                 key={size}
                                 type="button"
                                 onClick={() => handleSizeToggle(vIdx, size)}
-                                className={`text-[10px] font-semibold px-2.5 py-1 border transition-all cursor-pointer ${
+                                className={`text-[10px] font-bold px-2.5 py-1 border transition-all cursor-pointer ${
                                   isChecked
-                                    ? 'bg-black text-[#FAF9F6] border-black dark:bg-white dark:text-zinc-950 dark:border-white font-bold'
-                                    : 'border-zinc-200 dark:border-zinc-850 text-zinc-450 hover:border-zinc-455'
+                                    ? 'bg-white text-black border-white shadow-md'
+                                    : 'border-zinc-500 text-white dark:text-white hover:border-white'
                                 }`}
                               >
                                 {size}
