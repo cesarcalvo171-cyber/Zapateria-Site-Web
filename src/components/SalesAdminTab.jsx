@@ -55,18 +55,29 @@ export default function SalesAdminTab() {
       return;
     }
 
-    const exportData = sales.map(s => ({
-      'ID Pedido': s.order_number || '',
-      'Fecha': new Date(s.created_at).toLocaleDateString('es-ES'),
-      'Cliente': s.client_name || 'Anónimo',
-      'Teléfono': s.client_phone || 'N/A',
-      'Método Envío': s.shipping_type || 'N/A',
-      'Costo Envío ($)': Number(s.shipping_cost || 0),
-      'Total ($)': Number(s.total_amount || 0),
-      'Costo Proveedor ($)': Number(s.total_cost || 0),
-      'Ganancia Neta ($)': Number(s.profit || 0),
-      'Estado': s.status || 'Pendiente'
-    }));
+    const exportData = sales.map(s => {
+      const itemsSummary = s.sale_items && s.sale_items.length > 0
+        ? s.sale_items.map(item => {
+            const sizeStr = item.selected_size ? ` (Talla: ${item.selected_size})` : '';
+            const colorStr = item.selected_color_name ? ` [${item.selected_color_name}]` : '';
+            return `${item.quantity}x ${item.product_name || 'Producto'}${colorStr}${sizeStr}`;
+          }).join('; ')
+        : 'Sin detalle de productos';
+
+      return {
+        'ID Pedido': s.order_number || '',
+        'Fecha': new Date(s.created_at).toLocaleDateString('es-ES'),
+        'Cliente': s.client_name || 'Anónimo',
+        'Teléfono': s.client_phone || 'N/A',
+        'Productos / Detalles': itemsSummary,
+        'Método Envío': s.shipping_type || 'N/A',
+        'Costo Envío ($)': Number(s.shipping_cost || 0),
+        'Total ($)': Number(s.total_amount || 0),
+        'Costo Proveedor ($)': Number(s.total_cost || 0),
+        'Ganancia Neta ($)': Number(s.profit || 0),
+        'Estado': s.status || 'Pendiente'
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
 
@@ -75,6 +86,7 @@ export default function SalesAdminTab() {
       { wch: 14 }, // Fecha
       { wch: 22 }, // Cliente
       { wch: 16 }, // Teléfono
+      { wch: 45 }, // Productos / Detalles
       { wch: 16 }, // Método Envío
       { wch: 16 }, // Costo Envío
       { wch: 14 }, // Total
