@@ -120,7 +120,16 @@ export default function App() {
     fetchProducts();
     fetchBrands();
     fetchSettings();
-  }, [isAdminOpen]); // Refetch products & settings when admin panel closes
+  }, []);
+
+  // Refetch products & settings when admin panel closes
+  useEffect(() => {
+    if (!isAdminOpen) {
+      fetchProducts();
+      fetchBrands();
+      fetchSettings();
+    }
+  }, [isAdminOpen]);
 
   // Check auth session and listen to changes
   useEffect(() => {
