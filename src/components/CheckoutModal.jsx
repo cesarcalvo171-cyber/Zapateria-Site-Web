@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../supabaseClient';
 
 // Número de WhatsApp leído desde variables de entorno (.env.local)
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '';
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '50589443594';
 
 
 
