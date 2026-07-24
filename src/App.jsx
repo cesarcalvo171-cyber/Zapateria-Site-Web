@@ -418,19 +418,15 @@ export default function App() {
         isAdmin={isAdmin}
       />
 
-      {/* Hero Section */}
+      {/* Unified Hero & Featured Carousel Section */}
       <Hero
         heroSettings={heroSettings}
-      />
-
-      {/* Featured Grid Section (tarjetas destacadas) */}
-      <FeaturedGrid 
+        productsList={productsList}
         onOpenDetail={(prod) => setSelectedProduct(prod)}
         onAddToCart={(prod, qty, size, color) => {
           handleAddToCart(prod, qty, size, color);
           setIsCartOpen(true);
-        }} 
-        productsList={productsList} 
+        }}
       />
 
       {/* Catalog Container Wrapper with Clean White Background */}
@@ -488,7 +484,6 @@ export default function App() {
             {/* PASO 1: Categorías principales */}
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-0.5 rounded">Paso 1</span>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Categoría</span>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
@@ -501,7 +496,7 @@ export default function App() {
                       setSelectedBrand('Todas');
                       setShowOnlyFavorites(false);
                     }}
-                    className={`py-2 px-4 text-xs font-bold border transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-lg shadow-2xs ${
+                    className={`py-1 px-2 text-xs font-bold border transition-all duration-200 cursor-pointer uppercase tracking-wider rounded-lg shadow-2xs ${
                       selectedCategory === tab
                         ? 'bg-[#3CA9E5] text-white border-[#3CA9E5] shadow-sm scale-105'
                         : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#3CA9E5] hover:text-[#3CA9E5]'
@@ -524,7 +519,7 @@ export default function App() {
                   className="space-y-2 pt-3 border-t border-zinc-200/80 overflow-hidden"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-[#3CA9E5]/20 text-[#3CA9E5] px-2 py-0.5 rounded">Paso 2</span>
+                    
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Tipo de Calzado / Estilo</span>
                   </div>
                   <div className="flex flex-wrap justify-center items-center gap-2">
@@ -571,7 +566,6 @@ export default function App() {
                   className="space-y-2 pt-3 border-t border-zinc-200/80 overflow-hidden"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-600 px-2 py-0.5 rounded">Paso 3</span>
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-zinc-400">Marca</span>
                   </div>
                   <div className="flex flex-wrap justify-center items-center gap-2">
