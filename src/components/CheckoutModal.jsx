@@ -96,7 +96,7 @@ export default function CheckoutModal({
 
     msg += ` PRÓXIMO PASO:\n`;
     msg += `Por favor, confírmanos si los datos de tu orden son correctos. En cuanto nos des el visto bueno, te enviaremos las instrucciones de pago detalladas de forma privada por este chat.\n\n`;
-    msg += `Una vez coordinado el pago, procederemos con la preparación y el envío de tu fragancia.\n\n`;
+    msg += `Una vez coordinado el pago, procederemos con la preparación y el envío de tu Zapatos.\n\n`;
     msg += `¡Quedamos a tu entera disposición! Si tienes alguna duda, escríbenos. ¡Que tengas un excelente día!`;
 
     return msg;
