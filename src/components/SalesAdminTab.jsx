@@ -3,6 +3,8 @@ import { supabase } from '../supabaseClient';
 import { Download, ChevronDown, ChevronUp, Package, DollarSign, TrendingUp, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import * as XLSX from 'xlsx';
+
 export default function SalesAdminTab() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,34 +49,45 @@ export default function SalesAdminTab() {
     }
   };
 
-  const handleExportCSV = () => {
-    // Basic CSV export
-    const headers = ['ID Pedido', 'Fecha', 'Cliente', 'Teléfono', 'Envío', 'Total ($)', 'Costo ($)', 'Ganancia ($)', 'Estado'];
-    const rows = sales.map(s => [
-      s.order_number,
-      new Date(s.created_at).toLocaleDateString(),
-      s.client_name || 'Anónimo',
-      s.client_phone || 'N/A',
-      s.shipping_type || 'N/A',
-      s.total_amount,
-      s.total_cost,
-      s.profit,
-      s.status
-    ]);
+  const handleExportExcel = () => {
+    if (!sales || sales.length === 0) {
+      alert('No hay ventas registradas para exportar.');
+      return;
+    }
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.map(c => `"${c}"`).join(','))
-    ].join('\n');
+    const exportData = sales.map(s => ({
+      'ID Pedido': s.order_number || '',
+      'Fecha': new Date(s.created_at).toLocaleDateString('es-ES'),
+      'Cliente': s.client_name || 'Anónimo',
+      'Teléfono': s.client_phone || 'N/A',
+      'Método Envío': s.shipping_type || 'N/A',
+      'Costo Envío ($)': Number(s.shipping_cost || 0),
+      'Total ($)': Number(s.total_amount || 0),
+      'Costo Proveedor ($)': Number(s.total_cost || 0),
+      'Ganancia Neta ($)': Number(s.profit || 0),
+      'Estado': s.status || 'Pendiente'
+    }));
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `ventas_perfumeria_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    worksheet['!cols'] = [
+      { wch: 14 }, // ID Pedido
+      { wch: 14 }, // Fecha
+      { wch: 22 }, // Cliente
+      { wch: 16 }, // Teléfono
+      { wch: 16 }, // Método Envío
+      { wch: 16 }, // Costo Envío
+      { wch: 14 }, // Total
+      { wch: 20 }, // Costo Proveedor
+      { wch: 18 }, // Ganancia Neta
+      { wch: 14 }  // Estado
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Ventas_Zapateria');
+
+    const filename = `reporte_ventas_zapateria_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, filename);
   };
 
   const handleClearSales = async () => {
@@ -145,11 +158,11 @@ export default function SalesAdminTab() {
         </div>
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
           <button
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer rounded-sm"
           >
             <Download size={16} />
-            Exportar Excel (CSV)
+            Exportar Excel (.xlsx)
           </button>
           <button
             onClick={handleClearSales}

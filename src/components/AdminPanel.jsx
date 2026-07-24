@@ -5,6 +5,7 @@ import { X, Plus, Trash2, LogIn, UserPlus, LogOut, Check, ChevronLeft, Image as 
 import { motion, AnimatePresence } from 'framer-motion';
 import SalesAdminTab from './SalesAdminTab';
 import { subcategories as SUBCATEGORIES } from '../data/products';
+import * as XLSX from 'xlsx';
 
 const CATEGORIES = ['Hombre', 'Mujer', 'Niños', 'Marcas', 'Novedades', 'Ofertas', 'Otros'];
 const AVAILABLE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', 'Única'];
@@ -97,7 +98,7 @@ export default function AdminPanel({
   const [heroCta, setHeroCta] = useState('');
 
   // Bulk import states
-  const [importCsvFile, setImportCsvFile] = useState(null);
+  const [importExcelFile, setImportExcelFile] = useState(null);
   const [importImageFiles, setImportImageFiles] = useState([]);
   const [importLoading, setImportLoading] = useState(false);
   const [importProgress, setImportProgress] = useState('');
@@ -277,240 +278,277 @@ export default function AdminPanel({
 
   const handleDownloadTemplate = (e) => {
     e.preventDefault();
-    const headers = ['nombre', 'descripcion', 'categoria', 'subcategoria', 'destacado', 'detalles', 'nombre_imagen_archivo', 'tallas', 'stock', 'precios', 'costos', 'originales'];
-    const row = [
-      '"Air Max Speed Turf"',
-      '"Zapatillas de alto rendimiento con correa ajustable en el mediopié para un ajuste firme."',
-      '"Hombre"',
-      '"Deportivo"',
-      'TRUE',
-      '"Marca: Nike|Material: Cuero|Suela: Goma"',
-      'air_max_speed_turf.png',
-      '"40,41,42"',
-      '"10,15,20"',
-      '"85.00,85.00,85.00"',
-      '"45.00,45.00,45.00"',
-      '""'
+    const templateData = [
+      {
+        nombre: 'Air Max Speed Turf',
+        descripcion: 'Zapatillas de alto rendimiento con correa ajustable en el mediopié para un ajuste firme.',
+        categoria: 'Hombre',
+        subcategoria: 'Deportivo',
+        brand: 'Nike',
+        destacado: 'TRUE',
+        detalles: 'Marca: Nike|Material: Cuero|Suela: Goma',
+        nombre_imagen_archivo: 'air_max_speed_turf.png',
+        tallas: '40,41,42',
+        stock: '10,15,20',
+        precios: '85.00,85.00,85.00',
+        costos: '45.00,45.00,45.00',
+        originales: ''
+      },
+      {
+        nombre: 'Retro High OG',
+        descripcion: 'Diseño clásico con combinación de colores icónica y durabilidad excepcional.',
+        categoria: 'Hombre',
+        subcategoria: 'Casual',
+        brand: 'Jordan',
+        destacado: 'FALSE',
+        detalles: 'Marca: Jordan|Estilo retro',
+        nombre_imagen_archivo: 'retro_high.png',
+        tallas: '41,42',
+        stock: '8,12',
+        precios: '120.00,120.00',
+        costos: '60.00,60.00',
+        originales: '140.00,140.00'
+      }
     ];
-    const csvContent = [headers.join(','), row.join(',')].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'plantilla_catalogo_calzado.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    worksheet['!cols'] = Object.keys(templateData[0]).map(key => ({
+      wch: Math.max(key.length + 3, 16)
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Catálogo');
+    XLSX.writeFile(workbook, 'plantilla_catalogo_calzado.xlsx');
   };
 
-  const handleImportCSV = async (e) => {
+  const handleImportExcel = async (e) => {
     e.preventDefault();
-    if (!importCsvFile) {
-      alert('Por favor selecciona un archivo CSV.');
+    if (!importExcelFile) {
+      alert('Por favor selecciona un archivo Excel (.xlsx, .xls) o CSV.');
       return;
     }
-    
+
     setImportLoading(true);
-    setImportProgress('Leyendo archivo CSV...');
+    setImportProgress('Leyendo archivo Excel...');
 
     try {
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const text = event.target.result;
-        const rows = parseCSV(text);
-        
-        if (rows.length < 2) {
-          alert('El archivo CSV está vacío o no contiene filas de datos.');
-          setImportLoading(false);
-          return;
-        }
+        try {
+          const buffer = event.target.result;
+          const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-        const headers = rows[0].map(h => h.trim().toLowerCase());
-        const dataRows = rows.slice(1).filter(r => r.length > 0 && r[0].trim() !== '');
+          if (!rows || rows.length < 2) {
+            alert('El archivo Excel está vacío o no contiene filas de datos.');
+            setImportLoading(false);
+            return;
+          }
 
-        // Map column indexes
-        const idx = {
-          nombre: headers.indexOf('nombre'),
-          descripcion: headers.indexOf('descripcion'),
-          categoria: headers.indexOf('categoria'),
-          subcategoria: headers.indexOf('subcategoria'),
-          destacado: headers.indexOf('destacado'),
-          detalles: headers.indexOf('detalles'),
-          nombre_imagen_archivo: headers.indexOf('nombre_imagen_archivo'),
-          tallas: headers.indexOf('tallas'),
-          stock: headers.indexOf('stock'),
-          precios: headers.indexOf('precios'),
-          costos: headers.indexOf('costos'),
-          originales: headers.indexOf('originales')
-        };
+          // Map column indexes dynamically
+          const headers = rows[0].map(h => h.toString().trim().toLowerCase());
+          const dataRows = rows.slice(1).filter(r => r && r.length > 0 && r[0].toString().trim() !== '');
 
-        if (idx.nombre === -1 || idx.tallas === -1 || idx.precios === -1) {
-          alert('El CSV debe contener al menos las columnas "nombre", "tallas" y "precios".');
-          setImportLoading(false);
-          return;
-        }
+          const idx = {
+            nombre: headers.indexOf('nombre'),
+            descripcion: headers.indexOf('descripcion'),
+            categoria: headers.indexOf('categoria'),
+            subcategoria: headers.indexOf('subcategoria'),
+            brand: headers.indexOf('brand'),
+            destacado: headers.indexOf('destacado'),
+            detalles: headers.indexOf('detalles'),
+            nombre_imagen_archivo: headers.indexOf('nombre_imagen_archivo'),
+            tallas: headers.indexOf('tallas'),
+            stock: headers.indexOf('stock'),
+            precios: headers.indexOf('precios'),
+            costos: headers.indexOf('costos'),
+            originales: headers.indexOf('originales')
+          };
 
-        setImportProgress('Subiendo imágenes al servidor...');
-        const imageMap = {}; // Maps local file name to public URL
+          if (idx.nombre === -1 || idx.tallas === -1 || idx.precios === -1) {
+            alert('El archivo debe contener al menos las columnas "nombre", "tallas" y "precios".');
+            setImportLoading(false);
+            return;
+          }
 
-        if (importImageFiles && importImageFiles.length > 0) {
-          for (let i = 0; i < importImageFiles.length; i++) {
-            const file = importImageFiles[i];
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2, 9)}_${Date.now()}.${fileExt}`;
-            const filePath = `variants/${fileName}`;
+          // 1. Upload images concurrently in parallel
+          setImportProgress('Subiendo imágenes al servidor en paralelo...');
+          const imageMap = {};
 
-            setImportProgress(`Subiendo imagen: ${file.name} (${i + 1}/${importImageFiles.length})...`);
-            
-            const { error: uploadError } = await supabase.storage
-              .from('product-images')
-              .upload(filePath, file);
+          if (importImageFiles && importImageFiles.length > 0) {
+            const uploadPromises = importImageFiles.map(async (file) => {
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${Math.random().toString(36).substring(2, 9)}_${Date.now()}.${fileExt}`;
+              const filePath = `variants/${fileName}`;
 
-            if (uploadError) {
-              console.error('Error al subir imagen ' + file.name, uploadError.message);
+              const { error: uploadError } = await supabase.storage
+                .from('product-images')
+                .upload(filePath, file);
+
+              if (uploadError) {
+                console.error('Error al subir imagen ' + file.name, uploadError.message);
+                return;
+              }
+
+              const { data: { publicUrl } } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(filePath);
+
+              const normalizedName = file.name.trim().toLowerCase();
+              imageMap[normalizedName] = publicUrl;
+            });
+
+            await Promise.all(uploadPromises);
+          }
+
+          setImportProgress('Procesando productos...');
+          const productsMap = {};
+          const unmatchedImages = new Set();
+
+          dataRows.forEach(row => {
+            const nameVal = row[idx.nombre]?.toString().trim();
+            if (!nameVal) return;
+
+            if (!productsMap[nameVal]) {
+              const detailsArray = row[idx.detalles]
+                ? row[idx.detalles].toString().split('|').map(d => d.trim()).filter(d => d.length > 0)
+                : [];
+
+              const firstPriceArray = row[idx.precios] ? row[idx.precios].toString().split(',').map(p => parseFloat(p.trim()) || 0) : [0];
+              const firstCostArray = row[idx.costos] ? row[idx.costos].toString().split(',').map(c => parseFloat(c.trim()) || 0) : [0];
+              const firstOriginalArray = row[idx.originales] ? row[idx.originales].toString().split(',').map(o => o.trim() ? parseFloat(o.trim()) : null) : [null];
+
+              productsMap[nameVal] = {
+                name: nameVal,
+                description: row[idx.descripcion]?.toString().trim() || '',
+                category: row[idx.categoria]?.toString().trim() || CATEGORIES[0],
+                subcategory: idx.subcategoria !== -1 ? row[idx.subcategoria]?.toString().trim() || '' : '',
+                brand: idx.brand !== -1 ? row[idx.brand]?.toString().trim() || '' : '',
+                is_featured: row[idx.destacado]?.toString().trim().toUpperCase() === 'TRUE',
+                details: detailsArray,
+                price: firstPriceArray[0] || 0,
+                cost_price: firstCostArray[0] || 0,
+                original_price: firstOriginalArray[0] || null,
+                variants: []
+              };
+            }
+
+            const sizesList = row[idx.tallas] ? row[idx.tallas].toString().split(',').map(s => s.trim()) : ['Única'];
+            const stocksList = row[idx.stock] ? row[idx.stock].toString().split(',').map(s => parseInt(s.trim(), 10) || 0) : [1];
+            const pricesList = row[idx.precios] ? row[idx.precios].toString().split(',').map(p => parseFloat(p.trim()) || 0) : [0];
+            const costsList = row[idx.costos] ? row[idx.costos].toString().split(',').map(c => parseFloat(c.trim()) || 0) : [0];
+            const originalPricesList = row[idx.originales] ? row[idx.originales].toString().split(',').map(o => o.trim() ? parseFloat(o.trim()) : null) : [null];
+
+            const stock_by_size = {};
+            const price_by_size = {};
+            const cost_price_by_size = {};
+            const original_price_by_size = {};
+
+            sizesList.forEach((sz, sIdx) => {
+              stock_by_size[sz] = stocksList[sIdx] !== undefined ? stocksList[sIdx] : 1;
+              price_by_size[sz] = pricesList[sIdx] !== undefined ? pricesList[sIdx] : 0;
+              cost_price_by_size[sz] = costsList[sIdx] !== undefined ? costsList[sIdx] : 0;
+              original_price_by_size[sz] = originalPricesList[sIdx] !== undefined ? originalPricesList[sIdx] : null;
+            });
+
+            const excelImgFilename = row[idx.nombre_imagen_archivo]?.toString().trim().toLowerCase();
+            let imageUrl = '';
+
+            if (excelImgFilename && imageMap[excelImgFilename]) {
+              imageUrl = imageMap[excelImgFilename];
+            } else if (excelImgFilename) {
+              unmatchedImages.add(excelImgFilename);
+            }
+
+            const variantIdx = productsMap[nameVal].variants.length + 1;
+
+            productsMap[nameVal].variants.push({
+              color_name: `Variante ${variantIdx}`,
+              color_hex: '#000000',
+              image_url: imageUrl,
+              sizes: sizesList,
+              stock_by_size,
+              price_by_size,
+              cost_price_by_size,
+              original_price_by_size
+            });
+          });
+
+          // Insert into database
+          let insertedCount = 0;
+          const productsArray = Object.values(productsMap);
+
+          for (let i = 0; i < productsArray.length; i++) {
+            const product = productsArray[i];
+            setImportProgress(`Guardando producto ${i + 1}/${productsArray.length}: ${product.name}...`);
+
+            const { data: productData, error: productError } = await supabase
+              .from('products')
+              .insert({
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                original_price: product.original_price,
+                cost_price: product.cost_price,
+                category: product.category,
+                subcategory: product.subcategory,
+                brand: product.brand,
+                details: product.details,
+                is_featured: product.is_featured
+              })
+              .select()
+              .single();
+
+            if (productError) {
+              console.error('Error al insertar producto ' + product.name, productError.message);
               continue;
             }
 
-            const { data: { publicUrl } } = supabase.storage
-              .from('product-images')
-              .getPublicUrl(filePath);
+            const productId = productData.id;
 
-            imageMap[file.name.trim().toLowerCase()] = publicUrl;
-          }
-        }
+            for (const variant of product.variants) {
+              const { error: variantError } = await supabase
+                .from('product_variants')
+                .insert({
+                  product_id: productId,
+                  color_name: variant.color_name,
+                  color_hex: variant.color_hex,
+                  image_url: variant.image_url,
+                  sizes: variant.sizes,
+                  stock_by_size: variant.stock_by_size,
+                  price_by_size: variant.price_by_size,
+                  cost_price_by_size: variant.cost_price_by_size,
+                  original_price_by_size: variant.original_price_by_size
+                });
 
-        setImportProgress('Procesando productos...');
-        // Group by product name
-        const productsMap = {};
-
-        dataRows.forEach(row => {
-          const nameVal = row[idx.nombre]?.trim();
-          if (!nameVal) return;
-
-          if (!productsMap[nameVal]) {
-            const detailsArray = row[idx.detalles] 
-              ? row[idx.detalles].split('|').map(d => d.trim()).filter(d => d.length > 0)
-              : [];
-            
-            const firstPriceArray = row[idx.precios] ? row[idx.precios].split(',').map(p => parseFloat(p.trim()) || 0) : [0];
-            const firstCostArray = row[idx.costos] ? row[idx.costos].split(',').map(c => parseFloat(c.trim()) || 0) : [0];
-            const firstOriginalArray = row[idx.originales] ? row[idx.originales].split(',').map(o => o.trim() ? parseFloat(o.trim()) : null) : [null];
-
-            productsMap[nameVal] = {
-              name: nameVal,
-              description: row[idx.descripcion]?.trim() || '',
-              category: row[idx.categoria]?.trim() || CATEGORIES[0],
-              subcategory: idx.subcategoria !== -1 ? row[idx.subcategoria]?.trim() || '' : '',
-              is_featured: row[idx.destacado]?.trim().toUpperCase() === 'TRUE',
-              details: detailsArray,
-              price: firstPriceArray[0] || 0,
-              cost_price: firstCostArray[0] || 0,
-              original_price: firstOriginalArray[0] || null,
-              variants: []
-            };
-          }
-
-          // Build variant sizes arrays/objects
-          const sizesList = row[idx.tallas] ? row[idx.tallas].split(',').map(s => s.trim()) : ['Única'];
-          const stocksList = row[idx.stock] ? row[idx.stock].split(',').map(s => parseInt(s.trim(), 10) || 0) : [1];
-          const pricesList = row[idx.precios] ? row[idx.precios].split(',').map(p => parseFloat(p.trim()) || 0) : [0];
-          const costsList = row[idx.costos] ? row[idx.costos].split(',').map(c => parseFloat(c.trim()) || 0) : [0];
-          const originalPricesList = row[idx.originales] ? row[idx.originales].split(',').map(o => o.trim() ? parseFloat(o.trim()) : null) : [null];
-
-          const stock_by_size = {};
-          const price_by_size = {};
-          const cost_price_by_size = {};
-          const original_price_by_size = {};
-
-          sizesList.forEach((sz, sIdx) => {
-            stock_by_size[sz] = stocksList[sIdx] !== undefined ? stocksList[sIdx] : 1;
-            price_by_size[sz] = pricesList[sIdx] !== undefined ? pricesList[sIdx] : 0;
-            cost_price_by_size[sz] = costsList[sIdx] !== undefined ? costsList[sIdx] : 0;
-            original_price_by_size[sz] = originalPricesList[sIdx] !== undefined ? originalPricesList[sIdx] : null;
-          });
-
-          // Match image filename to public URL
-          const csvImageFilename = row[idx.nombre_imagen_archivo]?.trim().toLowerCase();
-          const imageUrl = imageMap[csvImageFilename] || '/images/liquid_brun.png';
-
-          const variantIdx = productsMap[nameVal].variants.length + 1;
-
-          productsMap[nameVal].variants.push({
-            color_name: `Variante ${variantIdx}`,
-            color_hex: '#000000',
-            image_url: imageUrl,
-            sizes: sizesList,
-            stock_by_size,
-            price_by_size,
-            cost_price_by_size,
-            original_price_by_size
-          });
-        });
-
-        // Insert into database
-        let insertedCount = 0;
-        const productsArray = Object.values(productsMap);
-
-        for (let i = 0; i < productsArray.length; i++) {
-          const product = productsArray[i];
-          setImportProgress(`Guardando producto ${i + 1}/${productsArray.length}: ${product.name}...`);
-
-          // 1. Insert product
-          const { data: productData, error: productError } = await supabase
-            .from('products')
-            .insert({
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              original_price: product.original_price,
-              cost_price: product.cost_price,
-              category: product.category,
-              subcategory: product.subcategory,
-              details: product.details,
-              is_featured: product.is_featured
-            })
-            .select()
-            .single();
-
-          if (productError) {
-            console.error('Error al insertar producto ' + product.name, productError.message);
-            continue;
-          }
-
-          const productId = productData.id;
-
-          // 2. Insert variants linked to product
-          for (const variant of product.variants) {
-            const { error: variantError } = await supabase
-              .from('product_variants')
-              .insert({
-                product_id: productId,
-                color_name: variant.color_name,
-                color_hex: variant.color_hex,
-                image_url: variant.image_url,
-                sizes: variant.sizes,
-                stock_by_size: variant.stock_by_size,
-                price_by_size: variant.price_by_size,
-                cost_price_by_size: variant.cost_price_by_size,
-                original_price_by_size: variant.original_price_by_size
-              });
-
-            if (variantError) {
-              console.error('Error al insertar variante del producto ' + product.name, variantError.message);
+              if (variantError) {
+                console.error('Error al insertar variante del producto ' + product.name, variantError.message);
+              }
             }
+            insertedCount++;
           }
-          insertedCount++;
-        }
 
-        alert(`¡Importación masiva completada! Se crearon ${insertedCount} productos con éxito.`);
-        setImportCsvFile(null);
-        setImportImageFiles([]);
-        setImportLoading(false);
-        setImportProgress('');
-        fetchProducts(); // Refresh list
+          let reportMsg = `¡Importación masiva completada!\n\n✔ ${insertedCount} de ${productsArray.length} calzados creados con éxito.`;
+          if (unmatchedImages.size > 0) {
+            reportMsg += `\n\n⚠️ Nota: Las siguientes ${unmatchedImages.size} imágenes no se encontraron entre los archivos subidos y se dejaron vacías:\n` + Array.from(unmatchedImages).join(', ');
+          }
+
+          alert(reportMsg);
+          setImportExcelFile(null);
+          setImportImageFiles([]);
+          setImportLoading(false);
+          setImportProgress('');
+          fetchProducts();
+        } catch (err) {
+          console.error(err);
+          alert('Error procesando el archivo Excel: ' + err.message);
+          setImportLoading(false);
+        }
       };
 
-      reader.readAsText(importCsvFile);
+      reader.readAsArrayBuffer(importExcelFile);
     } catch (err) {
       console.error(err);
       alert('Error general durante la importación: ' + err.message);
@@ -1085,23 +1123,23 @@ export default function AdminPanel({
 
             {!productToEdit && (
               <div className="bg-zinc-50 dark:bg-zinc-950 p-4 border border-zinc-200 dark:border-zinc-850 mb-6 space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white">Importación Masiva de Catálogo (CSV + Fotos)</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white">Importación Masiva de Calzado (Excel + Fotos)</h3>
                 <p className="text-[11px] text-zinc-400 dark:text-zinc-550 font-light leading-relaxed">
-                  Llene el catálogo en Excel y expórtelo como CSV. Seleccione el archivo CSV y luego arrastre todas las imágenes que correspondan al catálogo.
+                  Cargue su inventario directamente en Excel (.xlsx) o CSV. Seleccione el archivo y luego elija todas las fotos del catálogo para subirlas automáticamente.
                   <a href="#" onClick={handleDownloadTemplate} className="text-amber-500 hover:underline font-semibold ml-1.5 cursor-pointer">
-                    Descargar Plantilla CSV
+                    Descargar Plantilla Excel (.xlsx)
                   </a>
                 </p>
                 
-                <form onSubmit={handleImportCSV} className="space-y-3 pt-2">
+                <form onSubmit={handleImportExcel} className="space-y-3 pt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[8px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">1. Archivo CSV (.csv)</label>
+                      <label className="block text-[8px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1">1. Archivo Excel o CSV (.xlsx, .xls, .csv)</label>
                       <input 
                         type="file" 
-                        accept=".csv" 
+                        accept=".xlsx,.xls,.csv" 
                         required
-                        onChange={(e) => setImportCsvFile(e.target.files[0])}
+                        onChange={(e) => setImportExcelFile(e.target.files[0])}
                         className="w-full text-[10px] text-zinc-500 border border-zinc-300 dark:border-zinc-800 px-2 py-1.5 bg-white dark:bg-zinc-900 cursor-pointer"
                       />
                     </div>

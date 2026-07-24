@@ -69,7 +69,7 @@ export default function Hero({ heroSettings = {}, productsList = [], onOpenDetai
               <div className="w-full max-w-md relative">
                 
                 {/* Indicador Badge 'DESTACADO' */}
-                <div className="absolute top-4 left-4 z-20 bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                <div className="absolute top-4 left-4 z-20 bg-amber-400 backdrop-blur-md border border-white/30 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
                   Destacado
                 </div>
 
